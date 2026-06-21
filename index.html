@@ -477,6 +477,28 @@ const WORDS = [
   {it:"mangiare", ar:"يأكل",               ipa:"/manˈdʒaː.re/",  pron:"مان-جا-ريه",    cat:"أفعال",      ex:"Voglio mangiare qualcosa."},
   {it:"dormire",  ar:"ينام",               ipa:"/dorˈmiː.re/",   pron:"دور-مي-ريه",    cat:"أفعال",      ex:"Devo dormire presto."},
   {it:"parlare",  ar:"يتكلم",              ipa:"/parˈlaː.re/",   pron:"بار-لا-ريه",    cat:"أفعال",      ex:"Parlo italiano ogni giorno."},
+  {it:"andare",   ar:"يذهب (شاذ)",         ipa:"/anˈdaː.re/",    pron:"أن-دا-ريه",     cat:"أفعال",      ex:"Tutto andava a rotoli — كل شيء ذاهب إلى الداهية."},
+  // Presente — andare
+  {it:"Vado",     ar:"أنا بروح",           ipa:"/ˈvaː.do/",      pron:"فا-دو",         cat:"andare - حاضر",  ex:"Vado a scuola ogni giorno."},
+  {it:"Vai",      ar:"انت بتروح",          ipa:"/vaɪ/",           pron:"ڤاي",           cat:"andare - حاضر",  ex:"Dove vai stasera?"},
+  {it:"Va",       ar:"هو/هي بيروح",        ipa:"/va/",            pron:"فا",            cat:"andare - حاضر",  ex:"Lei va al lavoro in treno."},
+  {it:"Andiamo",  ar:"إحنا بنروح",         ipa:"/anˈdjaː.mo/",   pron:"أن-دييا-مو",    cat:"andare - حاضر",  ex:"Andiamo a casa insieme."},
+  {it:"Andate",   ar:"إنتم بتروحوا",       ipa:"/anˈdaː.te/",    pron:"أن-دا-تيه",     cat:"andare - حاضر",  ex:"Andate a letto tardi ogni sera!"},
+  {it:"Vanno",    ar:"هم بيروحوا",         ipa:"/ˈvan.no/",      pron:"ڤانـ-نو",       cat:"andare - حاضر",  ex:"Loro vanno sempre al mare d'estate."},
+  // Imperfetto — andare
+  {it:"Andavo",   ar:"أنا كنت بروح",       ipa:"/anˈdaː.vo/",    pron:"أن-دا-فو",      cat:"andare - ماضي مستمر", ex:"Andavo a scuola a piedi."},
+  {it:"Andavi",   ar:"انت كنت بتروح",      ipa:"/anˈdaː.vi/",    pron:"أن-دا-في",      cat:"andare - ماضي مستمر", ex:"Dove andavi ogni estate?"},
+  {it:"Andava",   ar:"هو/هي كان بيروح",    ipa:"/anˈdaː.va/",    pron:"أن-دا-فا",      cat:"andare - ماضي مستمر", ex:"Tutto andava a rotoli."},
+  {it:"Andavamo", ar:"إحنا كنا بنروح",     ipa:"/andaˈvaː.mo/",  pron:"أن-دا-فا-مو",   cat:"andare - ماضي مستمر", ex:"Andavamo in spiaggia ogni domenica."},
+  {it:"Andavate", ar:"إنتم كنتم بتروحوا",  ipa:"/andaˈvaː.te/",  pron:"أن-دا-فا-تيه",  cat:"andare - ماضي مستمر", ex:"Andavate sempre insieme, vero?"},
+  {it:"Andavano", ar:"هم كانوا بيروحوا",   ipa:"/anˈdaː.va.no/", pron:"أن-دا-فا-نو",   cat:"andare - ماضي مستمر", ex:"Andavano a rotoli, tutti i piani!"},
+  // Futuro Semplice — andare
+  {it:"Andrò",    ar:"أنا هروح",           ipa:"/anˈdrɔ/",       pron:"أن-درو",        cat:"andare - مستقبل", ex:"Domani andrò dal medico."},
+  {it:"Andrai",   ar:"انت هتروح",          ipa:"/anˈdraɪ/",      pron:"أن-دراي",       cat:"andare - مستقبل", ex:"Quando andrai in Italia?"},
+  {it:"Andrà",    ar:"هو/هي هيروح",        ipa:"/anˈdra/",       pron:"أن-درا",        cat:"andare - مستقبل", ex:"Tutto andrà bene, vedrai."},
+  {it:"Andremo",  ar:"إحنا هنروح",         ipa:"/anˈdrɛː.mo/",   pron:"أن-دريه-مو",    cat:"andare - مستقبل", ex:"Andremo in vacanza il mese prossimo."},
+  {it:"Andrete",  ar:"إنتم هتروحوا",       ipa:"/anˈdrɛː.te/",   pron:"أن-دريه-تيه",   cat:"andare - مستقبل", ex:"Andrete a Roma questo weekend?"},
+  {it:"Andranno", ar:"هم هيروحوا",         ipa:"/anˈdran.no/",   pron:"أن-دران-نو",    cat:"andare - مستقبل", ex:"Andranno al concerto domani sera."},
   {it:"bello",    ar:"جميل",               ipa:"/ˈbɛl.lo/",      pron:"بيلّو",          cat:"صفات",       ex:"Che bello! Mi piace molto."},
   {it:"grande",   ar:"كبير",               ipa:"/ˈɡran.de/",     pron:"جران-ديه",      cat:"صفات",       ex:"Roma è una città grande."},
   {it:"buono",    ar:"كويس / طيب",         ipa:"/ˈbwɔː.no/",     pron:"بووو-نو",       cat:"صفات",       ex:"Questo caffè è molto buono."},
@@ -1585,10 +1607,6 @@ function lEnd(){
   document.getElementById('lBadge').className='badge ok show';
   document.getElementById('lRestartBtn').style.display='inline-block';
   floatEmoji('🏆');
-}
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
 start();
