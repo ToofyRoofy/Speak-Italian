@@ -255,10 +255,11 @@
     justify-content:center;align-items:center;
     padding:10px 8px;border:1.5px dashed #5b9cf630;
     border-radius:12px;background:#0a0a14;margin-bottom:6px;
-    transition:border-color .25s;
+    transition:border-color .25s;direction:ltr;
   }
   .seq-answer.has-tiles{border-color:#5b9cf650;}
-  .seq-pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:4px 0 6px;}
+  .seq-pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:4px 0 6px;direction:ltr;}
+  .seq-answer.dir-rtl,.seq-pool.dir-rtl{direction:rtl;}
   .seq-tile{
     font-family:Georgia,serif;font-size:1rem;padding:7px 13px;
     border-radius:10px;border:1px solid var(--border);
@@ -1185,16 +1186,27 @@ function judge(alts,conf){
   } else {
     // Below 80% — must retry this same word, mic stays active.
     failCount++;
-    answered=false;
-    let cls,emoji,msg;
-    if(score>=55){cls='mid';emoji='💪';msg='قريب! حاول تاني عشان تعدي 80%';}
-    else{cls='bad';emoji='🔁';msg='بعيد عن النطق الصح — اسمع وحاول تاني';}
-    badge.innerHTML=emoji+' <b>'+score+'%</b> — '+msg;
-    badge.className='badge '+cls+' show';
-    card.className='card '+cls;
-    floatEmoji(emoji);
-    setTimeout(()=>speak(),450);
-    if(failCount>=3)skipBtn.style.display='inline-block';
+    if(failCount>=3){
+      // 3 wrong tries in a row — move on automatically instead of leaving
+      // the learner stuck retrying the same word.
+      badge.innerHTML='⏭️ خلصت 3 محاولات — يلا نكمل على الكلمة الجاية';
+      badge.className='badge bad show';
+      card.className='card bad';
+      floatEmoji('⏭️');
+      document.getElementById('micBtn').disabled=true;
+      skipBtn.style.display='none';
+      setTimeout(next,1200);
+    } else {
+      answered=false;
+      let cls,emoji,msg;
+      if(score>=55){cls='mid';emoji='💪';msg='قريب! حاول تاني عشان تعدي 80%';}
+      else{cls='bad';emoji='🔁';msg='بعيد عن النطق الصح — اسمع وحاول تاني';}
+      badge.innerHTML=emoji+' <b>'+score+'%</b> — '+msg;
+      badge.className='badge '+cls+' show';
+      card.className='card '+cls;
+      floatEmoji(emoji);
+      setTimeout(()=>speak(),450);
+    }
   }
 
   document.getElementById('sAvg').textContent=(passedCount?Math.round(totalScore/passedCount):0)+'%';
@@ -1491,37 +1503,54 @@ function drillJudge(alts){
     lRenderTokens();
     floatEmoji('✅');
     document.getElementById('drillAttempts').textContent='✅ كويس!';
-
-    setTimeout(()=>{
-      document.getElementById('lTtsBtn').style.display='inline-block';
-      document.getElementById('lMicBtn').onclick=lToggleMic;
-      document.getElementById('lMicLbl').textContent='اضغط وقول الجملة كلها';
-      document.getElementById('drillBox').classList.remove('show');
-      drillMode=false;
-
-      const nextBad=tokenStates.findIndex(st=>st==='bad');
-      if(nextBad>=0){
-        startDrill(nextBad);
-      } else {
-        sentenceAnswered=true;
-        lPassed++;lStreak++;
-        document.getElementById('lBadge').innerHTML='🌟 ممتاز! عديت الجملة كلها ✅';
-        document.getElementById('lBadge').className='badge ok show';
-        document.getElementById('lCard').className='card ok';
-        document.getElementById('lMicBtn').disabled=true;
-        document.getElementById('lSkipBtn').style.display='none';
-        document.getElementById('lNextBtn').className='next-btn show';
-        document.getElementById('lNextBtn').textContent=lIdx+1>=lDeck.length?'خلصت الدفعة 🏆':'الجملة الجاية ←';
-        floatEmoji('🏆');
-        lUpdateScore();
-      }
-    },700);
+    finishDrillWord();
   } else {
     drillFails++;
-    floatEmoji('🔁');
-    document.getElementById('drillAttempts').textContent=drillFails>=3?'خد وقتك — اسمع وكرر':'حاولة '+(drillFails+1)+' — حاول تاني';
-    setTimeout(()=>speakWord(w.it),300);
+    if(drillFails>=3){
+      // 3 wrong tries on this one word in a row — skip it automatically
+      // instead of trapping the learner in an endless retry loop.
+      tokenStates[drillTokenIdx]='skipped';
+      lRenderTokens();
+      floatEmoji('⏭️');
+      document.getElementById('drillAttempts').textContent='⏭️ تخطينا الكلمة دي، يلا نكمل';
+      finishDrillWord();
+    } else {
+      floatEmoji('🔁');
+      document.getElementById('drillAttempts').textContent='حاولة '+(drillFails+1)+' — حاول تاني';
+      setTimeout(()=>speakWord(w.it),300);
+    }
   }
+}
+
+// Shared "leave the drill box" step for both a correct attempt and an
+// auto-skip after 3 fails — moves on to the next bad word, or wraps up the
+// sentence if that was the last one.
+function finishDrillWord(){
+  setTimeout(()=>{
+    document.getElementById('lTtsBtn').style.display='inline-block';
+    document.getElementById('lMicBtn').onclick=lToggleMic;
+    document.getElementById('lMicLbl').textContent='اضغط وقول الجملة كلها';
+    document.getElementById('drillBox').classList.remove('show');
+    drillMode=false;
+
+    const nextBad=tokenStates.findIndex(st=>st==='bad');
+    if(nextBad>=0){
+      startDrill(nextBad);
+    } else {
+      sentenceAnswered=true;
+      lPassed++;lStreak++;
+      const hadSkips=tokenStates.includes('skipped');
+      document.getElementById('lBadge').innerHTML=hadSkips?'👍 خلصنا الجملة — كملنا بعض الكلمات تاني وقت':'🌟 ممتاز! عديت الجملة كلها ✅';
+      document.getElementById('lBadge').className='badge ok show';
+      document.getElementById('lCard').className='card ok';
+      document.getElementById('lMicBtn').disabled=true;
+      document.getElementById('lSkipBtn').style.display='none';
+      document.getElementById('lNextBtn').className='next-btn show';
+      document.getElementById('lNextBtn').textContent=lIdx+1>=lDeck.length?'خلصت الدفعة 🏆':'الجملة الجاية ←';
+      floatEmoji(hadSkips?'👍':'🏆');
+      lUpdateScore();
+    }
+  },700);
 }
 
 function lSkipSentence(){
@@ -1558,13 +1587,8 @@ function lEnd(){
   floatEmoji('🏆');
 }
 
-// ===== SERVICE WORKER (OFFLINE SUPPORT) =====
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(reg => {
-    console.log('✅ SW registered, scope:', reg.scope);
-  }).catch(err => {
-    console.log('SW registration failed:', err);
-  });
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
 start();
@@ -1606,6 +1630,11 @@ function seqSetup(){
   seqChecked=false;
   seqPlaced=[];
   seqPoolOrder=shuffle(s.words.map((_,i)=>i));
+
+  // Tile containers flow LTR for Italian tiles (correct reading order while
+  // building an Italian sentence) and RTL for Arabic tiles.
+  document.getElementById('seqAnswer').classList.toggle('dir-rtl',seqSub==='ar');
+  document.getElementById('seqPool').classList.toggle('dir-rtl',seqSub==='ar');
 
   // AR mode: auto-play full Italian sentence (task = hear then arrange Arabic)
   // IT mode: no auto-play — individual word plays on pick
