@@ -92,6 +92,7 @@
   .token.bad   {color:var(--red);  border-color:#ff4d6d50;background:#ff4d6d0d;animation:shake .3s ease;}
   .token.drill {color:var(--gold); border-color:#f5c51850;background:#f5c5180d;font-weight:700;}
   .token.skipped{color:var(--muted);border-color:var(--border);text-decoration:line-through;opacity:.5;}
+  .token.auto{color:var(--muted);border-color:var(--border);border-style:dashed;opacity:.6;}
   @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
   /* drill sub-mode overlay */
@@ -238,6 +239,75 @@
   }
   .restart-btn:hover{transform:scale(1.04);}
 
+  /* ── Study sub-mode tabs ── */
+  .study-tabs{display:flex;gap:6px;}
+  .study-tab{
+    flex:1;padding:8px 4px;border-radius:10px;border:1px solid var(--border);
+    background:var(--card);color:var(--muted);font-family:inherit;font-size:.74rem;
+    font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .study-tab.active{color:var(--blue);border-color:#5b9cf660;background:#5b9cf60d;}
+  .study-tab:hover:not(.active){color:var(--text);border-color:var(--muted);}
+
+  /* Sequencing mode — drag-free word-order task */
+  .seq-answer{
+    min-height:50px;display:flex;flex-wrap:wrap;gap:6px;
+    justify-content:center;align-items:center;
+    padding:10px 8px;border:1.5px dashed #5b9cf630;
+    border-radius:12px;background:#0a0a14;margin-bottom:6px;
+    transition:border-color .25s;
+  }
+  .seq-answer.has-tiles{border-color:#5b9cf650;}
+  .seq-pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:4px 0 6px;}
+  .seq-tile{
+    font-family:Georgia,serif;font-size:1rem;padding:7px 13px;
+    border-radius:10px;border:1px solid var(--border);
+    background:#0e0e1a;color:var(--text);cursor:pointer;
+    user-select:none;direction:ltr;transition:all .2s;
+  }
+  .seq-tile:hover:not(.ok):not(.bad){border-color:var(--blue);color:var(--blue);}
+  .seq-tile.placed{color:var(--blue);border-color:#5b9cf640;background:#5b9cf60d;}
+  .seq-tile.ok {color:var(--green);border-color:#00e89650;background:#00e8960d;cursor:default;}
+  .seq-tile.bad{color:var(--red);  border-color:#ff4d6d50;background:#ff4d6d0d;cursor:default;animation:shake .3s ease;}
+  .seq-zone-lbl{font-size:.64rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;text-align:center;margin-bottom:6px;}
+  .seq-empty-hint{font-size:.78rem;color:#6b6b8a40;font-style:italic;pointer-events:none;direction:rtl;}
+  .seq-tile.ar{direction:rtl;font-family:'Tajawal',system-ui,sans-serif;font-size:.92rem;letter-spacing:0;}
+  .seq-sub-tabs{display:flex;gap:6px;margin-bottom:8px;}
+  .seq-sub-tab{
+    flex:1;padding:7px 4px;border-radius:9px;border:1px solid var(--border);
+    background:var(--card);color:var(--muted);font-family:inherit;font-size:.76rem;
+    font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .seq-sub-tab.active{color:var(--blue);border-color:#5b9cf660;background:#5b9cf60d;}
+  .seq-sub-tab:hover:not(.active){color:var(--text);border-color:var(--muted);}
+
+  /* Writing mode */
+  #writePanel{flex-direction:column;gap:10px;}
+  .write-input{
+    width:100%;padding:12px 16px;border-radius:12px;
+    border:1px solid var(--border);background:#0e0e1a;
+    color:var(--text);font-family:'Courier New',monospace;font-size:1rem;
+    direction:ltr;resize:none;outline:none;transition:border-color .2s;
+  }
+  .write-input:focus{border-color:var(--blue);}
+  .write-check-btn{
+    width:100%;padding:12px;border-radius:12px;border:none;
+    background:linear-gradient(135deg,var(--purple),#9333ea);
+    color:#fff;font-family:inherit;font-size:.93rem;font-weight:700;
+    cursor:pointer;transition:filter .2s;
+  }
+  .write-check-btn:hover{filter:brightness(1.1);}
+  .write-check-btn:disabled{opacity:.4;cursor:default;}
+  .write-result{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;direction:ltr;margin:4px 0;}
+  .wr-tok{
+    font-family:Georgia,serif;font-size:.92rem;padding:5px 10px;
+    border-radius:8px;border:1px solid var(--border);background:#0e0e1a;
+  }
+  .wr-tok.ok{color:var(--green);border-color:#00e89650;background:#00e8960d;}
+  .wr-tok.bad{color:var(--red);border-color:#ff4d6d50;background:#ff4d6d0d;}
+  .wr-tok .correct-form{display:block;font-size:.66rem;color:var(--muted);margin-top:2px;}
+  .write-score{text-align:center;font-size:.88rem;font-weight:700;min-height:20px;}
+
   /* floater */
   .floater{
     position:fixed;font-size:3rem;pointer-events:none;z-index:999;
@@ -323,6 +393,11 @@
     </div>
 
     <div class="prog-track"><div class="prog-fill" id="lProgFill" style="width:0%"></div></div>
+    <div class="study-tabs">
+      <button class="study-tab active" id="stSpeak" onclick="setStudyMode('speak')">🎙️ نطق</button>
+      <button class="study-tab" id="stListen" onclick="setStudyMode('listen')">🔀 ترتيب</button>
+      <button class="study-tab" id="stWrite" onclick="setStudyMode('write')">✍️ كتابة</button>
+    </div>
     <button class="free-next-btn" onclick="lNext()">⏭️ جملة تانية</button>
 
     <div class="card" id="lCard">
@@ -331,6 +406,29 @@
       <div class="card-en" id="lEn"></div>
 
       <div class="tokens-wrap" id="lTokens"></div>
+
+      <!-- Sequence (word-order) mode panel — IT: arrange Italian tiles; AR: hear Italian, arrange Arabic -->
+      <div id="listenPanel" style="display:none">
+        <div class="seq-sub-tabs">
+          <button class="seq-sub-tab active" id="seqSubIt" onclick="setSeqSub('it')">🇮🇹 رتّب بالإيطالي</button>
+          <button class="seq-sub-tab"        id="seqSubAr" onclick="setSeqSub('ar')">🇸🇦 رتّب بالعربي</button>
+        </div>
+        <div class="seq-zone-lbl" id="seqZoneLbl">رتّب بالإيطالي 🔀</div>
+        <div class="seq-answer" id="seqAnswer">
+          <span class="seq-empty-hint">اضغط على الكلمات بالترتيب الصح</span>
+        </div>
+        <div class="seq-zone-lbl">الكلمات</div>
+        <div class="seq-pool" id="seqPool"></div>
+        <button class="free-next-btn" onclick="seqReveal()" id="seqRevealBtn" style="display:block;margin:6px auto 0">👁️ كشف الترتيب</button>
+      </div>
+
+      <!-- Write mode panel -->
+      <div id="writePanel" style="display:none">
+        <textarea class="write-input" id="writeInput" rows="2" placeholder="اكتب الجملة بالإيطالي هنا..."></textarea>
+        <button class="write-check-btn" id="writeCheckBtn" onclick="checkWrite()">✅ تحقق من الإجابة</button>
+        <div class="write-result" id="writeResult"></div>
+        <div class="write-score" id="writeScore"></div>
+      </div>
 
       <!-- isolated single-word drill -->
       <div class="drill-box" id="drillBox">
@@ -349,7 +447,7 @@
       </div>
     </div>
 
-    <div class="mic-area">
+    <div class="mic-area" id="lMicArea">
       <button class="tts-btn" id="lTtsBtn" onclick="lSpeak()">🔊 اسمع الجملة</button>
       <button class="mic-btn" id="lMicBtn" onclick="lToggleMic()">🎙️</button>
       <div class="mic-lbl" id="lMicLbl">اضغط وقول الجملة كلها</div>
@@ -412,8 +510,20 @@ const WORDS = [
 // short Arabic gloss (ar) for the breakdown panel, plus an optional deeper
 // grammar note (note) — null when the word is plain vocabulary needing no
 // further explanation.
+//
+// OPTIONAL `arOrders` field (sequence-mode, "رتّب بالعربي" only):
+// Arabic word order is more flexible than Italian's, so a sentence can list
+// extra accepted arrangements here, in addition to the default literal
+// (Italian-mirroring) order. Each entry is one full alternate ordering,
+// written as the original word indices (0 = first word, 1 = second, ...)
+// in their new order. Example below: indices 6,7 are "ogni"/"sera" (كل
+// ليلة) — fronting them is also valid Arabic, so arOrders lists
+// [6,7,0,1,2,3,4,5] (time expression first, then the rest in original
+// order) as an extra accepted arrangement. Leave the field out entirely
+// (or set it to null) for sentences where only the default order applies.
+// This does NOT affect "رتّب بالإيطالي", which always has one correct order.
 const LESSON_SENTENCES = [
-{it:"Io leggevo un po' di manga ogni sera", ar:"كنت باقرا شوية مانجا كل ليلة.", en:"I used to read a bit of manga every evening.", pronoun:"Io (أنا)",
+{it:"Io leggevo un po' di manga ogni sera", ar:"كنت بقرا شوية مانجا كل ليلة.", en:"I used to read a bit of manga every evening.", pronoun:"Io (أنا)",
  words:[
    {it:"Io",ar:"أنا",note:"ضمير المتكلم المفرد"},
    {it:"leggevo",ar:"كنت بقرا",note:"من المصدر Leggere، مُصرف في الـ Imperfetto مع Io"},
@@ -423,7 +533,7 @@ const LESSON_SENTENCES = [
    {it:"manga",ar:"مانجا",note:null},
    {it:"ogni",ar:"كل",note:"صفة كمية ثابتة قبل اسم مفرد"},
    {it:"sera",ar:"مساء / ليلة",note:null}
- ], conj:null},
+ ], conj:null, arOrders:[[6,7,0,1,2,3,4,5]]},
 
 {it:"Io prendevo il caffè alla mattina", ar:"كنت باخد القهوة في الصباح.", en:"I used to have coffee in the morning.", pronoun:"Io (أنا)",
  words:[
@@ -496,10 +606,10 @@ const LESSON_SENTENCES = [
    {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
    {person:"Loro (هم)",form:"Erano"}]}},
 
-{it:"Lui prendeva un caffè ogni mattina prima della lezione", ar:"هو كان باخد قهوة كل صبح قبل الحصة.", en:"He used to have a coffee every morning before class.", pronoun:"Lui (هو)",
+{it:"Lui prendeva un caffè ogni mattina prima della lezione", ar:"هو كان بياخد قهوة كل صبح قبل الحصة.", en:"He used to have a coffee every morning before class.", pronoun:"Lui (هو)",
  words:[
    {it:"Lui",ar:"هو",note:null},
-   {it:"prendeva",ar:"كان باخد",note:"من Prendere، Imperfetto مع Lui"},
+   {it:"prendeva",ar:"كان بياخد",note:"من Prendere، Imperfetto مع Lui"},
    {it:"un",ar:"(أداة تنكير)",note:null},
    {it:"caffè",ar:"قهوة",note:null},
    {it:"ogni",ar:"كل",note:null},
@@ -558,10 +668,10 @@ const LESSON_SENTENCES = [
    {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
    {person:"Loro (هم)",form:"Erano"}]}},
 
-{it:"Lei prendeva un caffè piccolo ogni mattina", ar:"هي كانت باخد قهوة صغيرة كل صبح.", en:"She used to have a small coffee every morning.", pronoun:"Lei (هي)",
+{it:"Lei prendeva un caffè piccolo ogni mattina", ar:"هي كانت بتاخد قهوة صغيرة كل صبح.", en:"She used to have a small coffee every morning.", pronoun:"Lei (هي)",
  words:[
    {it:"Lei",ar:"هي",note:null},
-   {it:"prendeva",ar:"كانت باخد",note:"من Prendere، Imperfetto مع Lei"},
+   {it:"prendeva",ar:"كانت بتاخد",note:"من Prendere، Imperfetto مع Lei"},
    {it:"un",ar:"(أداة تنكير)",note:null},
    {it:"caffè",ar:"قهوة",note:null},
    {it:"piccolo",ar:"صغير",note:"صفة، بتوصف caffè المذكر فبتاخد الصيغة المذكرة"},
@@ -586,14 +696,14 @@ const LESSON_SENTENCES = [
    {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
    {person:"Loro (هم)",form:"Erano"}]}},
 
-{it:"Noi tornavamo dalla lezione e prendevamo un caffè", ar:"احنا كنا برجع من الحصة وناخد قهوة.", en:"We used to come back from class and have a coffee.", pronoun:"Noi (احنا)",
+{it:"Noi tornavamo dalla lezione e prendevamo un caffè", ar:"احنا كنا بنرجع من الحصة وبناخد قهوة.", en:"We used to come back from class and have a coffee.", pronoun:"Noi (احنا)",
  words:[
    {it:"Noi",ar:"احنا",note:null},
-   {it:"tornavamo",ar:"كنا برجع",note:"من Tornare، Imperfetto مع Noi"},
+   {it:"tornavamo",ar:"كنا بنرجع",note:"من Tornare، Imperfetto مع Noi"},
    {it:"dalla",ar:"من الـ",note:null},
    {it:"lezione",ar:"الحصة",note:null},
    {it:"e",ar:"و",note:null},
-   {it:"prendevamo",ar:"كنا باخد",note:"من Prendere، Imperfetto مع Noi"},
+   {it:"prendevamo",ar:"كنا بناخد",note:"من Prendere، Imperfetto مع Noi"},
    {it:"un",ar:"(أداة تنكير)",note:null},
    {it:"caffè",ar:"قهوة",note:null}
  ], conj:null},
@@ -631,10 +741,10 @@ const LESSON_SENTENCES = [
    {it:"casa",ar:"البيت",note:null}
  ], conj:null},
 
-{it:"Voi prendevate sempre un caffè piccolo alla mattina", ar:"كنتوا دايماً باخدين قهوة صغيرة في الصباح.", en:"You (pl) always used to have a small coffee in the morning.", pronoun:"Voi (انتم)",
+{it:"Voi prendevate sempre un caffè piccolo alla mattina", ar:"كنتوا دايماً بتاخدوا قهوة صغيرة في الصباح.", en:"You (pl) always used to have a small coffee in the morning.", pronoun:"Voi (انتم)",
  words:[
    {it:"Voi",ar:"انتم",note:null},
-   {it:"prendevate",ar:"كنتوا باخدين",note:"من Prendere، Imperfetto مع Voi"},
+   {it:"prendevate",ar:"كنتوا بتاخدوا",note:"من Prendere، Imperfetto مع Voi"},
    {it:"sempre",ar:"دايماً",note:null},
    {it:"un",ar:"(أداة تنكير)",note:null},
    {it:"caffè",ar:"قهوة",note:null},
@@ -685,10 +795,10 @@ const LESSON_SENTENCES = [
    {it:"stanchi",ar:"تعبانين",note:null}
  ], conj:null},
 
-{it:"Loro prendevano un caffè ogni mattina prima della lezione", ar:"هم كانوا باخدين قهوة كل صبح قبل الحصة.", en:"They used to have a coffee every morning before class.", pronoun:"Loro (هم)",
+{it:"Loro prendevano un caffè ogni mattina prima della lezione", ar:"هم كانوا بياخدوا قهوة كل صبح قبل الحصة.", en:"They used to have a coffee every morning before class.", pronoun:"Loro (هم)",
  words:[
    {it:"Loro",ar:"هم",note:null},
-   {it:"prendevano",ar:"كانوا باخدين",note:"من Prendere، Imperfetto مع Loro"},
+   {it:"prendevano",ar:"كانوا بياخدوا",note:"من Prendere، Imperfetto مع Loro"},
    {it:"un",ar:"(أداة تنكير)",note:null},
    {it:"caffè",ar:"قهوة",note:null},
    {it:"ogni",ar:"كل",note:null},
@@ -709,6 +819,29 @@ function norm(s){
     .replace(/[àá]/g,'a').replace(/[èéê]/g,'e')
     .replace(/[ìí]/g,'i').replace(/[òó]/g,'o')
     .replace(/[ùú]/g,'u').replace(/[^a-z\s]/g,'').trim();
+}
+
+// Words that the sentence-level pronunciation drill (lesson mode) doesn't
+// require the learner to say correctly on their own: simple + combined
+// prepositions (حروف الجر) and indefinite articles (أدوات التنكير). They're
+// still shown in the sentence and still spoken by the TTS, but they never
+// turn 'bad' and never trigger the isolated word-drill — only real content
+// words (verbs, nouns, adjectives, pronouns, definite articles, etc.) do.
+const AUTO_SKIP_WORDS=new Set([
+  // حروف الجر البسيطة
+  'a','di','da','in','con','su','per','tra','fra',
+  // حروف الجر المدمجة (a/da/di/in/su + الأداة)
+  'al','allo','alla','ai','agli','alle',
+  'dal','dallo','dalla','dai','dagli','dalle',
+  'del','dello','della','dei','degli','delle',
+  'nel','nello','nella','nei','negli','nelle',
+  'sul','sullo','sulla','sui','sugli','sulle',
+  'col','coi',
+  // أدوات التنكير
+  'un','uno','una'
+]);
+function isAutoSkipWord(it){
+  return AUTO_SKIP_WORDS.has(norm(it));
 }
 
 // Levenshtein edit distance — used to approximate "how close" the heard
@@ -1114,6 +1247,8 @@ function switchMode(mode){
 // + tap-any-word-to-hear-it + always-available free navigation.
 let lDeck=[],lIdx=0;
 let lPassed=0,lStreak=0,lAttempts=0;
+let currentStudyMode='speak'; // 'speak' | 'listen' | 'write'
+let seqPlaced=[],seqPoolOrder=[],seqChecked=false,seqSub='it';
 
 // drill state — isolates and re-tests just the mispronounced word
 let drillMode=false;
@@ -1121,7 +1256,8 @@ let drillTokenIdx=null;
 let drillFails=0;
 
 // whole-sentence mic state
-let tokenStates=[];           // 'pending'|'ok'|'bad'|'drill'|'skipped', one per word
+let tokenStates=[];           // 'pending'|'ok'|'bad'|'drill'|'skipped'|'auto', one per word
+                               // ('auto' = preposition/indefinite article, never graded)
 let sentenceAnswered=false;
 let sentenceFails=0;
 
@@ -1136,7 +1272,7 @@ function restartLesson(){lStart();}
 function lRender(){
   drillMode=false;sentenceAnswered=false;sentenceFails=0;
   const s=lDeck[lIdx];
-  tokenStates=s.words.map(()=>'pending');
+  tokenStates=s.words.map(w=>isAutoSkipWord(w.it)?'auto':'pending');
 
   document.getElementById('lPronoun').textContent=s.pronoun;
   document.getElementById('lAr').textContent=s.ar;
@@ -1184,6 +1320,18 @@ function lRender(){
   document.getElementById('lProgFill').style.width=(lIdx/lDeck.length*100)+'%';
   lUpdateScore();
   lRenderTokens();
+
+  // Show the correct panel for current study mode
+  const isSp=currentStudyMode==='speak';
+  const isLi=currentStudyMode==='listen';
+  const isWr=currentStudyMode==='write';
+  document.getElementById('lTokens').style.display=isSp?'flex':'none';
+  document.getElementById('listenPanel').style.display=isLi?'block':'none';
+  document.getElementById('writePanel').style.display=isWr?'flex':'none';
+  document.getElementById('lMicBtn').style.display=isSp?'flex':'none';
+  document.getElementById('lMicLbl').style.display=isSp?'block':'none';
+  if(isLi)seqSetup();
+  if(isWr)writeSetup();
 }
 
 function lRenderTokens(){
@@ -1194,7 +1342,7 @@ function lRenderTokens(){
     const span=document.createElement('span');
     span.className='token '+tokenStates[i];
     span.textContent=w.it;
-    span.title=w.ar;
+    span.title=tokenStates[i]==='auto'?w.ar+' (مش لازم تتنطق لوحدها)':w.ar;
     span.onclick=()=>speakWord(w.it);
     wrap.appendChild(span);
   });
@@ -1262,7 +1410,7 @@ function lJudgeSentence(alts){
   let allOk=true;
   const badIdxs=[];
   s.words.forEach((w,i)=>{
-    if(tokenStates[i]==='ok'||tokenStates[i]==='skipped')return;
+    if(tokenStates[i]==='ok'||tokenStates[i]==='skipped'||tokenStates[i]==='auto')return;
     if(matched[i].score>=THRESH){tokenStates[i]='ok';}
     else{tokenStates[i]='bad';badIdxs.push(i);allOk=false;}
   });
@@ -1410,11 +1558,282 @@ function lEnd(){
   floatEmoji('🏆');
 }
 
+// ===== SERVICE WORKER (OFFLINE SUPPORT) =====
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    console.log('✅ SW registered, scope:', reg.scope);
+  }).catch(err => {
+    console.log('SW registration failed:', err);
+  });
+}
+
 start();
 // Start loading the offline speech engine in the background right away, so
 // it's hopefully ready by the time the user presses the mic. If it's not
 // ready yet, the mic falls back to the online engine automatically.
 ensureWhisperLoaded();
+
+// ── Study mode switcher ──
+function setStudyMode(mode){
+  if(micBusy)return;
+  currentStudyMode=mode;
+  ['speak','listen','write'].forEach(m=>{
+    document.getElementById('st'+m.charAt(0).toUpperCase()+m.slice(1))
+      .classList.toggle('active',m===mode);
+  });
+  lRender();
+}
+
+// ── SEQUENCE MODE ──
+// IT sub-mode: shuffled Italian tiles; word audio plays on each pick (no full-sentence auto-play).
+// AR sub-mode: full sentence auto-plays in Italian; user arranges Arabic-labelled tiles.
+// Tiles where ar is a grammar description (starts with '(') keep the Italian word as their label.
+
+function seqArLabel(w){
+  // If Arabic translation is a grammar placeholder, show Italian word instead
+  return (!w.ar||w.ar.startsWith('('))?w.it:w.ar;
+}
+
+function setSeqSub(sub){
+  seqSub=sub;
+  document.getElementById('seqSubIt').classList.toggle('active',sub==='it');
+  document.getElementById('seqSubAr').classList.toggle('active',sub==='ar');
+  seqSetup();
+}
+
+function seqSetup(){
+  const s=lDeck[lIdx];
+  seqChecked=false;
+  seqPlaced=[];
+  seqPoolOrder=shuffle(s.words.map((_,i)=>i));
+
+  // AR mode: auto-play full Italian sentence (task = hear then arrange Arabic)
+  // IT mode: no auto-play — individual word plays on pick
+  if(seqSub==='ar'){
+    const utt=new SpeechSynthesisUtterance(s.it);
+    utt.lang='it-IT';utt.rate=0.75;
+    setTimeout(()=>{speechSynthesis.cancel();speechSynthesis.speak(utt);},700);
+  }
+
+  // TTS button: visible in AR mode (re-listen), hidden in IT mode (no full-sentence hint)
+  document.getElementById('lTtsBtn').style.display=seqSub==='ar'?'inline-block':'none';
+
+  // Update zone label
+  document.getElementById('seqZoneLbl').textContent=
+    seqSub==='it'?'رتّب بالإيطالي 🔀':'رتّب بالعربي 🔀';
+
+  document.getElementById('lHeard').textContent='';
+  document.getElementById('lBadge').className='badge';
+  document.getElementById('lBreakdown').style.display='none';
+  document.getElementById('lConjWrap').style.display='none';
+  document.getElementById('seqRevealBtn').style.display='inline-block';
+  seqRender();
+}
+
+// Returns tile class string including ar modifier when needed
+function seqTileClass(...states){
+  return ['seq-tile',seqSub==='ar'?'ar':'',...states].filter(Boolean).join(' ');
+}
+
+function seqRender(){
+  const s=lDeck[lIdx];
+  const ar=seqSub==='ar';
+
+  // ── answer zone ──
+  const az=document.getElementById('seqAnswer');
+  az.innerHTML='';
+  if(seqPlaced.length===0){
+    const hint=document.createElement('span');
+    hint.className='seq-empty-hint';
+    hint.textContent=ar?'اختار الكلمات بالعربي بالترتيب الصح':'اضغط على الكلمات بالترتيب الصح';
+    az.appendChild(hint);
+    az.classList.remove('has-tiles');
+  } else {
+    seqPlaced.forEach(wi=>{
+      const w=s.words[wi];
+      const t=document.createElement('span');
+      t.className=seqTileClass('placed');
+      t.textContent=ar?seqArLabel(w):w.it;
+      t.title=ar?w.it:w.ar;
+      if(!seqChecked)t.onclick=()=>seqReturn(wi);
+      az.appendChild(t);
+    });
+    az.classList.add('has-tiles');
+  }
+
+  // ── pool ──
+  const pl=document.getElementById('seqPool');
+  pl.innerHTML='';
+  seqPoolOrder.forEach(wi=>{
+    if(seqPlaced.includes(wi))return;
+    const w=s.words[wi];
+    const t=document.createElement('span');
+    t.className=seqTileClass();
+    t.textContent=ar?seqArLabel(w):w.it;
+    t.title=ar?w.it:w.ar;
+    if(!seqChecked)t.onclick=()=>seqPick(wi);
+    pl.appendChild(t);
+  });
+}
+
+function seqPick(wi){
+  if(seqChecked)return;
+  // IT mode: play the individual word audio on selection
+  if(seqSub==='it')speakWord(lDeck[lIdx].words[wi].it);
+  seqPlaced.push(wi);
+  seqRender();
+  if(seqPlaced.length===lDeck[lIdx].words.length)setTimeout(seqCheck,160);
+}
+
+function seqReturn(wi){
+  if(seqChecked)return;
+  const pos=seqPlaced.indexOf(wi);
+  if(pos>=0)seqPlaced.splice(pos,1);
+  seqRender();
+}
+
+// Arabic word order is more flexible than Italian's, so the AR side of
+// sequence-mode can accept more than one correct arrangement. A sentence
+// may optionally carry `arOrders`: an array of alternate accepted orders,
+// each itself an array of the original word indices (0..n-1) in that
+// order — e.g. arOrders:[[6,7,0,1,2,3,4,5]] means "ogni/sera first, then
+// Io/leggevo/..." is also correct, in addition to the literal default
+// (Italian-mirroring) order. The Italian side (رتّب بالإيطالي) always has
+// exactly one correct order: the sentence's actual word order, since
+// that's literally what's being practiced there.
+function seqAcceptedOrders(s){
+  const n=s.words.length;
+  const defaultOrder=Array.from({length:n},(_,i)=>i);
+  if(seqSub==='it'||!s.arOrders||!s.arOrders.length)return [defaultOrder];
+  return [defaultOrder,...s.arOrders];
+}
+
+function seqCheck(){
+  if(seqChecked)return;
+  seqChecked=true;
+  const s=lDeck[lIdx];
+  // Grade against whichever accepted order the learner's placement matches
+  // best, so a valid alternate Arabic ordering doesn't get marked wrong
+  // just because it differs from the default literal order.
+  const candidates=seqAcceptedOrders(s);
+  let best=candidates[0],bestMatches=-1;
+  candidates.forEach(c=>{
+    let m=0;
+    seqPlaced.forEach((wi,pos)=>{if(wi===c[pos])m++;});
+    if(m>bestMatches){bestMatches=m;best=c;}
+  });
+  let correct=0;
+  const tiles=document.getElementById('seqAnswer').querySelectorAll('.seq-tile');
+  seqPlaced.forEach((wi,pos)=>{
+    const ok=(wi===best[pos]);
+    if(ok)correct++;
+    if(tiles[pos])tiles[pos].className=seqTileClass(ok?'ok':'bad');
+  });
+  const pct=Math.round(correct/s.words.length*100);
+  lAttempts++;
+  if(pct>=80){lPassed++;lStreak++;floatEmoji('✅');}
+  else{lStreak=0;floatEmoji('🔀');}
+  lUpdateScore();
+
+  const badge=document.getElementById('lBadge');
+  badge.innerHTML=correct+'/'+s.words.length+' كلمة في مكانها الصح — <b>'+pct+'%</b>';
+  badge.className='badge '+(pct>=80?'ok':pct>=50?'mid':'bad')+' show';
+  document.getElementById('lCard').className='card '+(pct>=80?'ok':pct>=50?'mid':'bad');
+
+  document.getElementById('lBreakdown').style.display='flex';
+  if(s.conj)document.getElementById('lConjWrap').style.display='block';
+  document.getElementById('lNextBtn').className='next-btn show';
+  document.getElementById('lNextBtn').textContent=lIdx+1>=lDeck.length?'خلصت الدفعة 🏆':'الجملة الجاية ←';
+  document.getElementById('seqRevealBtn').style.display='none';
+}
+
+function seqReveal(){
+  if(seqChecked)return;
+  seqChecked=true;
+  const s=lDeck[lIdx];
+  const az=document.getElementById('seqAnswer');
+  az.innerHTML='';az.classList.add('has-tiles');
+  const ar=seqSub==='ar';
+  s.words.forEach(w=>{
+    const t=document.createElement('span');
+    t.className=seqTileClass('ok');
+    t.textContent=ar?seqArLabel(w):w.it;
+    t.title=ar?w.it:w.ar;
+    az.appendChild(t);
+  });
+  document.getElementById('seqPool').innerHTML='';
+  document.getElementById('lBreakdown').style.display='flex';
+  if(s.conj)document.getElementById('lConjWrap').style.display='block';
+  document.getElementById('lNextBtn').className='next-btn show';
+  document.getElementById('lNextBtn').textContent=lIdx+1>=lDeck.length?'خلصت الدفعة 🏆':'الجملة الجاية ←';
+  document.getElementById('seqRevealBtn').style.display='none';
+  lStreak=0;lUpdateScore();
+}
+
+// ── WRITE MODE ──
+// Show Arabic (+ audio hint via TTS button); user types the Italian sentence.
+// Token-by-token Levenshtein check gives per-word green/red feedback.
+function writeSetup(){
+  const inp=document.getElementById('writeInput');
+  inp.value='';inp.disabled=false;
+  document.getElementById('writeResult').innerHTML='';
+  document.getElementById('writeScore').textContent='';
+  document.getElementById('writeCheckBtn').disabled=false;
+  document.getElementById('lNextBtn').className='next-btn';
+  document.getElementById('lHeard').textContent='';
+  document.getElementById('lBadge').className='badge';
+  inp.onkeydown=(e)=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();checkWrite();}
+  };
+  setTimeout(()=>inp.focus(),150);
+}
+
+function checkWrite(){
+  const s=lDeck[lIdx];
+  const inp=document.getElementById('writeInput');
+  const typed=inp.value.trim();
+  if(!typed)return;
+
+  inp.disabled=true;
+  document.getElementById('writeCheckBtn').disabled=true;
+
+  const typedToks=typed.split(/\s+/).filter(Boolean);
+  const resultWrap=document.getElementById('writeResult');
+  resultWrap.innerHTML='';
+  let correctCount=0;
+
+  s.words.forEach((w,i)=>{
+    const target=norm(w.it);
+    const userWord=typedToks[i]||'';
+    const isOk=similarity(norm(userWord),target)>=0.72;
+    if(isOk)correctCount++;
+
+    const div=document.createElement('div');
+    div.className='wr-tok '+(isOk?'ok':'bad');
+    div.textContent=isOk?w.it:(userWord||'—');
+    if(!isOk){
+      const sp=document.createElement('span');
+      sp.className='correct-form';
+      sp.textContent='✓ '+w.it;
+      div.appendChild(sp);
+    }
+    resultWrap.appendChild(div);
+  });
+
+  const pct=Math.round(correctCount/s.words.length*100);
+  const scoreEl=document.getElementById('writeScore');
+  scoreEl.textContent=correctCount+'/'+s.words.length+' كلمة صح — '+pct+'%';
+  scoreEl.style.color=pct>=80?'var(--green)':pct>=50?'var(--gold)':'var(--red)';
+
+  lAttempts++;
+  if(pct>=80){lPassed++;lStreak++;floatEmoji('✅');}
+  else{lStreak=0;floatEmoji('📝');}
+  lUpdateScore();
+
+  document.getElementById('lNextBtn').className='next-btn show';
+  document.getElementById('lNextBtn').textContent=
+    lIdx+1>=lDeck.length?'خلصت الدفعة 🏆':'الجملة الجاية ←';
+}
 </script>
 </body>
 </html>
