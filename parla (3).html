@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parla Italiano 🇮🇹</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+
+  :root {
+    --bg:#0b0b11; --card:#13131c; --border:#252535;
+    --green:#00e896; --red:#ff4d6d; --gold:#f5c518;
+    --blue:#5b9cf6; --text:#f0f0fa; --muted:#6b6b8a;
+    --purple:#c084fc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'Tajawal',system-ui,sans-serif;
+    min-height:100vh;display:flex;align-items:center;
+    justify-content:center;padding:24px 16px;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;
+    background-image:linear-gradient(#ffffff03 1px,transparent 1px),
+      linear-gradient(90deg,#ffffff03 1px,transparent 1px);
+    background-size:44px 44px;pointer-events:none;
+  }
+  .wrap{position:relative;width:100%;max-width:460px;display:flex;flex-direction:column;gap:15px;}
+
+  /* header */
+  .logo{font-size:2.2rem;font-weight:900;letter-spacing:3px;color:var(--gold);
+    direction:ltr;font-family:Georgia,serif;text-align:center;}
+  .tagline{color:var(--muted);font-size:.84rem;text-align:center;margin-top:2px;}
+
+  /* scores */
+  .scores{display:flex;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .sc{flex:1;text-align:center;padding:13px 0;border-left:1px solid var(--border);}
+  .sc:last-child{border-left:none;}
+  .sc-num{font-size:1.8rem;font-weight:900;line-height:1;}
+  .sc-lbl{font-size:.7rem;color:var(--muted);margin-top:3px;}
+  .sc.g .sc-num{color:var(--gold);} .sc.r .sc-num{color:var(--green);} .sc.b .sc-num{color:var(--blue);}
+
+  /* mode tabs */
+  .mode-tabs{display:flex;gap:8px;}
+  .mode-tab{
+    flex:1;padding:11px 6px;border-radius:12px;border:1px solid var(--border);
+    background:var(--card);color:var(--muted);font-family:inherit;font-size:.82rem;
+    font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .mode-tab.active{background:linear-gradient(135deg,var(--gold),#d4a90a);color:#000;border-color:transparent;}
+  .mode-tab:hover:not(.active){color:var(--text);border-color:var(--muted);}
+
+  /* lesson breakdown */
+  .card-it.sentence{font-size:1.55rem;line-height:1.35;}
+  .card-en{font-size:.85rem;color:var(--muted);direction:ltr;font-style:italic;margin-bottom:6px;}
+  .breakdown{
+    display:flex;flex-direction:column;gap:9px;
+    background:#0e0e1a;border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;margin:10px 0;text-align:right;
+  }
+  .bd-row{display:flex;gap:10px;align-items:baseline;}
+  .bd-word{font-family:Georgia,serif;color:var(--gold);direction:ltr;font-weight:700;
+    min-width:84px;text-align:left;flex-shrink:0;}
+  .bd-note{color:var(--text);font-size:.83rem;line-height:1.5;}
+  .conj-table{margin-top:10px;background:#0e0e1a;border:1px solid var(--border);border-radius:12px;padding:10px 14px;}
+  .conj-title{font-size:.72rem;color:var(--muted);margin-bottom:6px;text-align:center;}
+  .conj-tbl{width:100%;border-collapse:collapse;font-size:.85rem;}
+  .conj-tbl td{padding:4px 8px;border-bottom:1px solid var(--border);}
+  .conj-tbl td:first-child{color:var(--blue);text-align:right;}
+  .conj-tbl td:last-child{color:var(--green);direction:ltr;text-align:left;font-family:Georgia,serif;}
+
+  .free-next-btn{
+    align-self:center;background:none;border:1px solid var(--border);color:var(--muted);
+    font-family:inherit;font-size:.78rem;padding:6px 14px;border-radius:20px;cursor:pointer;transition:.2s;
+  }
+  .free-next-btn:hover{color:var(--gold);border-color:var(--gold);}
+
+  .word-tap{cursor:pointer;border-bottom:1px dashed transparent;border-radius:3px;padding:0 1px;transition:.15s;}
+  .word-tap:hover,.word-tap:active{border-bottom-color:var(--gold);color:var(--gold);background:#ffffff08;}
+  .bd-word.word-tap{cursor:pointer;}
+
+  /* token row (live per-word feedback) */
+  .tokens-wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;direction:ltr;margin:4px 0 14px;}
+  .token{
+    font-family:Georgia,serif;font-size:1.05rem;padding:6px 12px;cursor:pointer;
+    border-radius:10px;border:1px solid var(--border);
+    background:#0e0e1a;color:var(--muted);transition:all .3s;
+  }
+  .token.pending{color:var(--text);}
+  .token.ok    {color:var(--green);border-color:#00e89650;background:#00e8960d;}
+  .token.bad   {color:var(--red);  border-color:#ff4d6d50;background:#ff4d6d0d;animation:shake .3s ease;}
+  .token.drill {color:var(--gold); border-color:#f5c51850;background:#f5c5180d;font-weight:700;}
+  .token.skipped{color:var(--muted);border-color:var(--border);text-decoration:line-through;opacity:.5;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  /* drill sub-mode overlay */
+  .drill-box{
+    background:#0e0e1a;border:1px solid var(--gold);
+    border-radius:14px;padding:16px 18px;margin-top:4px;
+    display:none;text-align:center;
+  }
+  .drill-box.show{display:block;}
+  .drill-label{font-size:.72rem;color:var(--muted);letter-spacing:1.5px;margin-bottom:6px;}
+  .drill-word{font-family:Georgia,serif;font-size:2rem;color:var(--gold);direction:ltr;margin-bottom:4px;}
+  .drill-ar{font-size:.92rem;color:var(--text);margin-bottom:6px;}
+  .drill-note{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+  .drill-attempts{font-size:.72rem;color:var(--muted);}
+
+  .engine-status{
+    display:none;text-align:center;font-size:.74rem;color:var(--muted);
+    background:#0e0e1a;border:1px solid var(--border);border-radius:10px;
+    padding:6px 10px;direction:rtl;
+  }
+
+  /* progress */
+  .prog-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .prog-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:2px;transition:width .5s ease;}
+
+  /* card */
+  .card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:20px;padding:28px 22px;text-align:center;
+    transition:border-color .35s,background .35s;
+  }
+  .card.ok {border-color:#00e89660;background:#00e8960a;}
+  .card.mid{border-color:#f5c51860;background:#f5c5180a;}
+  .card.bad{border-color:#ff4d6d60;background:#ff4d6d0a;}
+
+  .card-cat{font-size:.66rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .card-it{font-family:Georgia,serif;font-size:2.8rem;color:var(--text);direction:ltr;line-height:1.1;margin-bottom:8px;}
+  .card-ar{font-size:1.2rem;color:var(--gold);margin-bottom:14px;}
+
+  /* pronunciation box */
+  .pron-box{
+    display:flex;flex-direction:column;gap:7px;
+    background:#0e0e1a;border:1px solid var(--border);
+    border-radius:12px;padding:12px 16px;margin-bottom:4px;
+  }
+  .pron-row{display:flex;align-items:center;gap:10px;direction:ltr;}
+  .pron-tag{
+    font-size:.62rem;letter-spacing:1px;text-transform:uppercase;
+    color:var(--muted);min-width:34px;text-align:right;
+    flex-shrink:0;
+  }
+  .pron-ipa{
+    font-family:'Courier New',monospace;font-size:1.05rem;
+    color:var(--purple);letter-spacing:.5px;
+  }
+  .pron-ar-row{display:flex;align-items:center;gap:10px;direction:rtl;}
+  .pron-ar-val{
+    font-size:1rem;color:var(--blue);
+    letter-spacing:.5px;direction:rtl;
+  }
+
+  /* stress legend */
+  .stress-note{
+    font-size:.7rem;color:var(--muted);direction:ltr;
+    text-align:center;margin-top:4px;
+  }
+  .stress-note b{color:var(--purple);}
+
+  .card-ex{font-size:.8rem;color:var(--muted);direction:ltr;font-style:italic;margin-top:10px;min-height:18px;}
+
+  /* mic area */
+  .mic-area{display:flex;flex-direction:column;align-items:center;gap:11px;}
+  .tts-btn{
+    background:none;border:1px solid var(--border);color:var(--muted);
+    border-radius:8px;padding:6px 16px;cursor:pointer;font-size:.8rem;font-family:inherit;
+    transition:color .2s,border-color .2s;
+  }
+  .tts-btn:hover{color:var(--gold);border-color:var(--gold);}
+  .mic-btn{
+    width:84px;height:84px;border-radius:50%;
+    border:2px solid var(--border);
+    background:linear-gradient(145deg,#1c1c28,#26263a);
+    color:var(--text);font-size:1.9rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .12s,border-color .3s,box-shadow .3s;
+  }
+  .mic-btn:hover:not(:disabled){transform:scale(1.06);}
+  .mic-btn:active:not(:disabled){transform:scale(.96);}
+  .mic-btn:disabled{opacity:.35;cursor:default;}
+  .mic-btn.on{
+    border-color:var(--red);
+    animation:pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 4px #ff4d6d33,0 0 0 10px #ff4d6d0a;}
+    50%     {box-shadow:0 0 0 10px #ff4d6d1a,0 0 0 20px #ff4d6d05;}
+  }
+  .mic-lbl{font-size:.8rem;color:var(--muted);transition:color .2s;}
+  .mic-lbl.on{color:var(--red);}
+
+  /* heard */
+  .heard{text-align:center;font-size:.78rem;color:var(--muted);direction:ltr;min-height:18px;}
+
+  /* badge */
+  .badge{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    border-radius:12px;padding:10px 18px;font-weight:700;font-size:.93rem;
+    opacity:0;transform:translateY(8px);
+    transition:opacity .3s,transform .3s;pointer-events:none;
+  }
+  .badge.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .badge.ok {background:#00e89612;border:1px solid #00e89640;color:var(--green);}
+  .badge.mid{background:#f5c51812;border:1px solid #f5c51840;color:var(--gold);}
+  .badge.bad{background:#ff4d6d12;border:1px solid #ff4d6d40;color:var(--red);}
+
+  .skip-link{
+    background:none;border:none;color:var(--muted);
+    font-family:inherit;font-size:.78rem;text-decoration:underline;
+    cursor:pointer;padding:4px;display:none;align-self:center;
+  }
+  .skip-link:hover{color:var(--text);}
+
+  .next-btn{
+    width:100%;padding:13px;border-radius:14px;border:none;
+    background:linear-gradient(135deg,var(--blue),#3a72d8);
+    color:#fff;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;
+    opacity:0;transform:translateY(6px);
+    transition:opacity .3s,transform .3s;pointer-events:none;
+  }
+  .next-btn.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .next-btn:hover{filter:brightness(1.1);}
+
+  /* end */
+  #endScreen{display:none;flex-direction:column;align-items:center;gap:20px;text-align:center;}
+  #endScreen.show{display:flex;}
+  .end-emoji{font-size:5rem;}
+  .end-title{font-size:1.5rem;font-weight:900;color:var(--gold);}
+  .end-sub{color:var(--muted);font-size:.93rem;line-height:1.9;}
+  .restart-btn{
+    padding:13px 42px;border-radius:14px;border:none;
+    background:linear-gradient(135deg,var(--green),#00b870);
+    color:#000;font-family:inherit;font-size:1rem;font-weight:900;cursor:pointer;
+    transition:transform .15s;
+  }
+  .restart-btn:hover{transform:scale(1.04);}
+
+  /* floater */
+  .floater{
+    position:fixed;font-size:3rem;pointer-events:none;z-index:999;
+    left:50%;top:42%;transform:translateX(-50%);
+    animation:floatUp .9s ease forwards;
+  }
+  @keyframes floatUp{
+    0%  {opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
+    100%{opacity:0;transform:translateX(-50%) translateY(-130px) scale(1.6);}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div>
+    <div class="logo">🇮🇹 Parla!</div>
+    <div class="tagline">تدريب النطق + الدرس الإنفينيتي</div>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabWord" onclick="switchMode('word')">🎙️ نطق الكلمات</button>
+    <button class="mode-tab" id="tabLesson" onclick="switchMode('lesson')">📖 الدرس الإنفينيتي</button>
+  </div>
+
+  <div class="engine-status" id="engineStatus"></div>
+
+  <div class="wrap" id="game" style="padding:0">
+  <div class="scores">
+    <div class="sc g"><div class="sc-num" id="sAvg">0%</div><div class="sc-lbl">📊 متوسط النطق</div></div>
+    <div class="sc b"><div class="sc-num" id="sAll">0</div><div class="sc-lbl">🔤 محاولات</div></div>
+    <div class="sc r"><div class="sc-num" id="sBest">0%</div><div class="sc-lbl">🏆 أعلى سكور</div></div>
+  </div>
+
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+  <div class="card" id="card">
+    <div class="card-cat" id="cat"></div>
+    <div class="card-it"  id="wIt"></div>
+    <div class="card-ar"  id="wAr"></div>
+
+    <!-- Pronunciation guide -->
+    <div class="pron-box">
+      <div class="pron-row">
+        <span class="pron-tag">IPA</span>
+        <span class="pron-ipa" id="wIpa"></span>
+      </div>
+      <div class="pron-ar-row">
+        <span class="pron-tag" style="direction:ltr">نطق</span>
+        <span class="pron-ar-val" id="wPron"></span>
+      </div>
+    </div>
+    <div class="stress-note">ˈ = الضغط على المقطع التالي · aː = مد طويل · tʃ = تش · dʒ = ج</div>
+
+    <div class="card-ex" id="wEx"></div>
+  </div>
+
+  <div class="mic-area">
+    <button class="tts-btn" onclick="speak()">🔊 اسمع النطق الصح</button>
+    <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙️</button>
+    <div class="mic-lbl" id="micLbl">اضغط وتكلم</div>
+  </div>
+
+  <div class="heard" id="heard"></div>
+  <div class="badge" id="badge"></div>
+  <button class="skip-link" id="skipBtn" onclick="skipWord()">تخطي الكلمة دي ←</button>
+  <button class="next-btn" id="nextBtn" onclick="next()">التالي ←</button>
+  </div>
+
+  <div class="wrap" id="endScreen" style="padding:0">
+    <div class="end-emoji" id="endEmoji"></div>
+    <div class="end-title" id="endTitle"></div>
+    <div class="end-sub"  id="endSub"></div>
+    <button class="restart-btn" onclick="restart()">🔄 العب تاني</button>
+  </div>
+
+  <!-- LESSON MODE: infinite-style sentence breakdown + pronunciation + word-drill -->
+  <div class="wrap" id="lessonMode" style="display:none;padding:0">
+    <div class="scores">
+      <div class="sc g"><div class="sc-num" id="lAvg">0%</div><div class="sc-lbl">📊 جمل صح</div></div>
+      <div class="sc b"><div class="sc-num" id="lAll">0/0</div><div class="sc-lbl">📖 الجملة</div></div>
+      <div class="sc r"><div class="sc-num" id="lStreak">0</div><div class="sc-lbl">🔥 streak</div></div>
+    </div>
+
+    <div class="prog-track"><div class="prog-fill" id="lProgFill" style="width:0%"></div></div>
+    <button class="free-next-btn" onclick="lNext()">⏭️ جملة تانية</button>
+
+    <div class="card" id="lCard">
+      <div class="card-cat" id="lPronoun"></div>
+      <div class="card-ar" id="lAr" style="margin-bottom:4px;"></div>
+      <div class="card-en" id="lEn"></div>
+
+      <div class="tokens-wrap" id="lTokens"></div>
+
+      <!-- isolated single-word drill -->
+      <div class="drill-box" id="drillBox">
+        <div class="drill-label">تدريب كلمة واحدة</div>
+        <div class="drill-word" id="drillWord"></div>
+        <div class="drill-ar"   id="drillAr"></div>
+        <div class="drill-note" id="drillNote"></div>
+        <div class="drill-attempts" id="drillAttempts"></div>
+      </div>
+
+      <div class="breakdown" id="lBreakdown"></div>
+
+      <div class="conj-table" id="lConjWrap" style="display:none">
+        <div class="conj-title" id="lConjTitle"></div>
+        <table class="conj-tbl" id="lConjTbl"></table>
+      </div>
+    </div>
+
+    <div class="mic-area">
+      <button class="tts-btn" id="lTtsBtn" onclick="lSpeak()">🔊 اسمع الجملة</button>
+      <button class="mic-btn" id="lMicBtn" onclick="lToggleMic()">🎙️</button>
+      <div class="mic-lbl" id="lMicLbl">اضغط وقول الجملة كلها</div>
+    </div>
+
+    <div class="heard" id="lHeard"></div>
+    <div class="badge" id="lBadge"></div>
+    <button class="skip-link" id="lSkipBtn" onclick="lSkipSentence()">تخطي الجملة دي ←</button>
+    <button class="next-btn" id="lNextBtn" onclick="lNext()">الجملة الجاية ←</button>
+    <button class="restart-btn" id="lRestartBtn" onclick="lStart()" style="display:none">🔄 ابدأ الدفعة من الأول</button>
+  </div>
+</div>
+
+<script>
+const WORDS = [
+  {it:"cane",     ar:"كلب",                ipa:"/ˈkaː.ne/",      pron:"كا-نيه",       cat:"حيوانات",    ex:"Il cane è felice."},
+  {it:"gatto",    ar:"قط",                 ipa:"/ˈɡat.to/",      pron:"جاتّو",         cat:"حيوانات",    ex:"Il gatto dorme sempre."},
+  {it:"casa",     ar:"بيت",                ipa:"/ˈkaː.za/",      pron:"كا-زا",         cat:"أماكن",      ex:"La mia casa è grande."},
+  {it:"acqua",    ar:"ماء",                ipa:"/ˈak.kwa/",      pron:"أكـ-كوا",       cat:"طعام وشراب", ex:"Voglio dell'acqua."},
+  {it:"pane",     ar:"خبز",                ipa:"/ˈpaː.ne/",      pron:"با-نيه",        cat:"طعام وشراب", ex:"Il pane è fresco."},
+  {it:"libro",    ar:"كتاب",               ipa:"/ˈliː.bro/",     pron:"لي-برو",        cat:"أشياء",      ex:"Leggo un libro ogni giorno."},
+  {it:"porta",    ar:"باب",                ipa:"/ˈpɔr.ta/",      pron:"بور-تا",        cat:"أشياء",      ex:"La porta è aperta."},
+  {it:"sole",     ar:"شمس",                ipa:"/ˈsoː.le/",      pron:"سو-ليه",        cat:"طبيعة",      ex:"Il sole splende forte."},
+  {it:"luna",     ar:"قمر",                ipa:"/ˈluː.na/",      pron:"لو-نا",         cat:"طبيعة",      ex:"Stasera c'è la luna piena."},
+  {it:"amico",    ar:"صديق",               ipa:"/aˈmiː.ko/",     pron:"أ-مي-كو",       cat:"ناس",        ex:"Il mio amico si chiama Marco."},
+  {it:"mangiare", ar:"يأكل",               ipa:"/manˈdʒaː.re/",  pron:"مان-جا-ريه",    cat:"أفعال",      ex:"Voglio mangiare qualcosa."},
+  {it:"dormire",  ar:"ينام",               ipa:"/dorˈmiː.re/",   pron:"دور-مي-ريه",    cat:"أفعال",      ex:"Devo dormire presto."},
+  {it:"parlare",  ar:"يتكلم",              ipa:"/parˈlaː.re/",   pron:"بار-لا-ريه",    cat:"أفعال",      ex:"Parlo italiano ogni giorno."},
+  {it:"bello",    ar:"جميل",               ipa:"/ˈbɛl.lo/",      pron:"بيلّو",          cat:"صفات",       ex:"Che bello! Mi piace molto."},
+  {it:"grande",   ar:"كبير",               ipa:"/ˈɡran.de/",     pron:"جران-ديه",      cat:"صفات",       ex:"Roma è una città grande."},
+  {it:"buono",    ar:"كويس / طيب",         ipa:"/ˈbwɔː.no/",     pron:"بووو-نو",       cat:"صفات",       ex:"Questo caffè è molto buono."},
+  {it:"grazie",   ar:"شكراً",              ipa:"/ˈɡrat.tsje/",   pron:"جراتـ-سييه",    cat:"تعبيرات",    ex:"Grazie mille per tutto!"},
+  {it:"prego",    ar:"عفواً",              ipa:"/ˈprɛː.ɡo/",     pron:"بريه-جو",       cat:"تعبيرات",    ex:"— Grazie! — Prego, figurati."},
+  {it:"scusa",    ar:"آسف / معلش",         ipa:"/ˈskuː.za/",     pron:"سكو-زا",        cat:"تعبيرات",    ex:"Scusa, non ho capito."},
+  {it:"ciao",     ar:"مرحبا / مع السلامة", ipa:"/tʃaʊ/",         pron:"تشاو",          cat:"تعبيرات",    ex:"Ciao! Come stai oggi?"},
+  {it:"amore",    ar:"حب",                 ipa:"/aˈmoː.re/",     pron:"أ-مو-ريه",      cat:"مشاعر",      ex:"L'amore è la cosa più bella."},
+  {it:"strada",   ar:"شارع",               ipa:"/ˈstraː.da/",    pron:"سترا-دا",       cat:"أماكن",      ex:"Attraverso la strada piano."},
+  {it:"treno",    ar:"قطار",               ipa:"/ˈtrɛː.no/",     pron:"تريه-نو",       cat:"مواصلات",    ex:"Il treno parte tra cinque minuti."},
+  {it:"macchina", ar:"سيارة",              ipa:"/ˈmak.ki.na/",   pron:"ماكـ-كي-نا",    cat:"مواصلات",    ex:"Ho una macchina rossa."},
+  {it:"tempo",    ar:"وقت / طقس",          ipa:"/ˈtɛm.po/",      pron:"تيم-بو",        cat:"عام",        ex:"Che tempo fa oggi?"},
+  {it:"caffè",    ar:"قهوة",               ipa:"/kafˈfɛ/",       pron:"كافـ-فيه",      cat:"طعام وشراب", ex:"Prendo un caffè, per favore."},
+  {it:"pizza",    ar:"بيتزا",              ipa:"/ˈpit.tsa/",     pron:"بيتـ-تسا",      cat:"طعام وشراب", ex:"La pizza napoletana è la migliore."},
+  {it:"città",    ar:"مدينة",              ipa:"/tʃitˈta/",      pron:"تشيتـ-تا",      cat:"أماكن",      ex:"Questa città è bellissima."},
+  {it:"musica",   ar:"موسيقى",             ipa:"/ˈmuː.zi.ka/",   pron:"مو-زي-كا",      cat:"فن",         ex:"Ascolto la musica ogni sera."},
+  {it:"lavoro",   ar:"شغل / عمل",          ipa:"/laˈvoː.ro/",    pron:"لا-فو-رو",      cat:"عام",        ex:"Vado al lavoro in bicicletta."},
+];
+
+// ===== INFINITE LESSON BANK =====
+// Built only from vocabulary in Omar's own 6 sentences (manga, lezione, caffè,
+// mattina, condizionatore, casa, sera, notte, piccolo, stanco, tutto, sempre,
+// ogni, ieri, tardi) + verbs (leggere, capire, prendere, funzionare, tornare,
+// lavorare, essere) — recombined across all 7 pronouns, Imperfetto tense,
+// simple + combined prepositions (a/da/di → alla/dalla/della/del), articles,
+// and a quantità expression (un po' di). None of these sentences repeat the
+// original 6 verbatim. This is a static, pre-built bank (not live AI
+// generation) so it works as a plain file on Netlify with no API key/server.
+//
+// Each sentence is tokenized into real space-separated words (words[]) so the
+// live drill engine can match spoken audio word-by-word. Each word carries a
+// short Arabic gloss (ar) for the breakdown panel, plus an optional deeper
+// grammar note (note) — null when the word is plain vocabulary needing no
+// further explanation.
+const LESSON_SENTENCES = [
+{it:"Io leggevo un po' di manga ogni sera", ar:"كنت باقرا شوية مانجا كل ليلة.", en:"I used to read a bit of manga every evening.", pronoun:"Io (أنا)",
+ words:[
+   {it:"Io",ar:"أنا",note:"ضمير المتكلم المفرد"},
+   {it:"leggevo",ar:"كنت بقرا",note:"من المصدر Leggere، مُصرف في الـ Imperfetto مع Io"},
+   {it:"un",ar:"(جزء من تعبير كمية)",note:"جزء من تعبير الكمية un po' di"},
+   {it:"po'",ar:"شوية",note:"جزء من تعبير الكمية (Quantità) un po' di"},
+   {it:"di",ar:"من",note:"حرف جر بسيط، جزء من تعبير الكمية"},
+   {it:"manga",ar:"مانجا",note:null},
+   {it:"ogni",ar:"كل",note:"صفة كمية ثابتة قبل اسم مفرد"},
+   {it:"sera",ar:"مساء / ليلة",note:null}
+ ], conj:null},
+
+{it:"Io prendevo il caffè alla mattina", ar:"كنت باخد القهوة في الصباح.", en:"I used to have coffee in the morning.", pronoun:"Io (أنا)",
+ words:[
+   {it:"Io",ar:"أنا",note:null},
+   {it:"prendevo",ar:"كنت باخد",note:"من المصدر Prendere، مُصرف في الـ Imperfetto مع Io"},
+   {it:"il",ar:"الـ",note:"أداة تعريف مذكر مفرد"},
+   {it:"caffè",ar:"قهوة",note:null},
+   {it:"alla",ar:"في الـ",note:"حرف جر مدمج = a + la، قبل اسم مؤنث مفرد"},
+   {it:"mattina",ar:"صباح",note:null}
+ ], conj:null},
+
+{it:"Io ero stanco quando tornavo a casa tardi", ar:"كنت تعبان لما كنت برجع البيت متأخر.", en:"I was tired when I used to come home late.", pronoun:"Io (أنا)",
+ words:[
+   {it:"Io",ar:"أنا",note:null},
+   {it:"ero",ar:"كنت",note:"من المصدر Essere (فعل شاذ)، مُصرف في الـ Imperfetto مع Io"},
+   {it:"stanco",ar:"تعبان",note:"صفة مذكر مفرد"},
+   {it:"quando",ar:"لما",note:"أداة ربط زمنية"},
+   {it:"tornavo",ar:"كنت برجع",note:"من المصدر Tornare، Imperfetto مع Io"},
+   {it:"a",ar:"لـ",note:"حرف جر بسيط، جزء من تعبير ثابت a casa"},
+   {it:"casa",ar:"البيت",note:"بدون أداة تعريف (تعبير ثابت)"},
+   {it:"tardi",ar:"متأخر",note:"ظرف زمان"}
+ ], conj:{verb:"Essere",rows:[
+   {person:"Io (أنا)",form:"Ero"},{person:"Tu (أنت)",form:"Eri"},
+   {person:"Lui (هو)",form:"Era"},{person:"Lei (هي)",form:"Era"},
+   {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
+   {person:"Loro (هم)",form:"Erano"}]}},
+
+{it:"Tu leggevi i manga la sera", ar:"كنت بتقرا المانجا بالليل؟", en:"Did you use to read manga in the evening?", pronoun:"Tu (أنت)",
+ words:[
+   {it:"Tu",ar:"أنت",note:"ضمير المخاطب المفرد"},
+   {it:"leggevi",ar:"كنت بتقرا",note:"من Leggere، Imperfetto مع Tu"},
+   {it:"i",ar:"الـ",note:"أداة تعريف مذكر جمع"},
+   {it:"manga",ar:"مانجا",note:"اسم أجنبي بدون تغيير، الجمع بياخد بس الأداة"},
+   {it:"la",ar:"الـ",note:"جزء من la sera"},
+   {it:"sera",ar:"بالليل",note:null}
+ ], conj:null},
+
+{it:"Tu capivi sempre tutto a lezione", ar:"كنت دايماً بتفهم كل حاجة في الحصة.", en:"You always used to understand everything in class.", pronoun:"Tu (أنت)",
+ words:[
+   {it:"Tu",ar:"أنت",note:null},
+   {it:"capivi",ar:"كنت بتفهم",note:"من Capire، Imperfetto مع Tu"},
+   {it:"sempre",ar:"دايماً",note:null},
+   {it:"tutto",ar:"كل حاجة",note:"ضمير/صفة شاملة"},
+   {it:"a",ar:"في",note:"حرف جر بسيط، جزء من تعبير ثابت a lezione"},
+   {it:"lezione",ar:"الحصة",note:null}
+ ], conj:null},
+
+{it:"Tu tornavi dalla lezione stanco", ar:"كنت بترجع من الحصة تعبان.", en:"You used to come back from class tired.", pronoun:"Tu (أنت)",
+ words:[
+   {it:"Tu",ar:"أنت",note:null},
+   {it:"tornavi",ar:"كنت بترجع",note:"من Tornare، Imperfetto مع Tu"},
+   {it:"dalla",ar:"من الـ",note:"حرف جر مدمج = da + la، قبل اسم مؤنث مفرد"},
+   {it:"lezione",ar:"حصة",note:null},
+   {it:"stanco",ar:"تعبان",note:null}
+ ], conj:null},
+
+{it:"Lui lavorava di notte e era sempre stanco", ar:"هو كان بيشتغل بالليل وكان دايماً تعبان.", en:"He used to work at night and was always tired.", pronoun:"Lui (هو)",
+ words:[
+   {it:"Lui",ar:"هو",note:"ضمير الغائب المفرد المذكر"},
+   {it:"lavorava",ar:"كان بيشتغل",note:"من Lavorare، Imperfetto مع Lui"},
+   {it:"di",ar:"بـ",note:"حرف جر بسيط، جزء من di notte"},
+   {it:"notte",ar:"الليل",note:null},
+   {it:"e",ar:"و",note:null},
+   {it:"era",ar:"كان",note:"من Essere (فعل شاذ)، Imperfetto مع Lui"},
+   {it:"sempre",ar:"دايماً",note:null},
+   {it:"stanco",ar:"تعبان",note:null}
+ ], conj:{verb:"Essere",rows:[
+   {person:"Io (أنا)",form:"Ero"},{person:"Tu (أنت)",form:"Eri"},
+   {person:"Lui (هو)",form:"Era"},{person:"Lei (هي)",form:"Era"},
+   {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
+   {person:"Loro (هم)",form:"Erano"}]}},
+
+{it:"Lui prendeva un caffè ogni mattina prima della lezione", ar:"هو كان باخد قهوة كل صبح قبل الحصة.", en:"He used to have a coffee every morning before class.", pronoun:"Lui (هو)",
+ words:[
+   {it:"Lui",ar:"هو",note:null},
+   {it:"prendeva",ar:"كان باخد",note:"من Prendere، Imperfetto مع Lui"},
+   {it:"un",ar:"(أداة تنكير)",note:null},
+   {it:"caffè",ar:"قهوة",note:null},
+   {it:"ogni",ar:"كل",note:null},
+   {it:"mattina",ar:"صبح",note:null},
+   {it:"prima",ar:"قبل",note:"جزء من حرف الجر المركب prima di"},
+   {it:"della",ar:"الـ",note:"حرف جر مدمج = di + la، قبل lezione (مؤنث مفرد)"},
+   {it:"lezione",ar:"حصة",note:null}
+ ], conj:null},
+
+{it:"Il condizionatore non funzionava bene e lui era stanco del caldo", ar:"المكيف ماكنش شغال كويس، وهو كان تعبان من الحر.", en:"The AC wasn't working well, and he was tired of the heat.", pronoun:"Lui (هو)",
+ words:[
+   {it:"Il",ar:"الـ",note:"أداة تعريف مذكر مفرد"},
+   {it:"condizionatore",ar:"المكيف",note:null},
+   {it:"non",ar:"مش",note:"أداة نفي، جزء من non...bene"},
+   {it:"funzionava",ar:"كان شغال",note:"من Funzionare، Imperfetto (الغائب المفرد)"},
+   {it:"bene",ar:"كويس",note:"ظرف"},
+   {it:"e",ar:"و",note:null},
+   {it:"lui",ar:"هو",note:null},
+   {it:"era",ar:"كان",note:"من Essere، Imperfetto مع Lui"},
+   {it:"stanco",ar:"تعبان",note:null},
+   {it:"del",ar:"من الـ",note:"حرف جر مدمج = di + il، قبل caldo (مذكر مفرد)"},
+   {it:"caldo",ar:"الحر / السخونة",note:null}
+ ], conj:{verb:"Essere",rows:[
+   {person:"Io (أنا)",form:"Ero"},{person:"Tu (أنت)",form:"Eri"},
+   {person:"Lui (هو)",form:"Era"},{person:"Lei (هي)",form:"Era"},
+   {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
+   {person:"Loro (هم)",form:"Erano"}]}},
+
+{it:"Lei tornava a casa dalla lezione la sera", ar:"هي كانت بترجع البيت من الحصة بالليل.", en:"She used to come home from class in the evening.", pronoun:"Lei (هي)",
+ words:[
+   {it:"Lei",ar:"هي",note:"ضمير الغائب المفرد المؤنث"},
+   {it:"tornava",ar:"كانت بترجع",note:"من Tornare، Imperfetto مع Lei"},
+   {it:"a",ar:"لـ",note:"جزء من a casa"},
+   {it:"casa",ar:"البيت",note:null},
+   {it:"dalla",ar:"من الـ",note:"حرف جر مدمج = da + la"},
+   {it:"lezione",ar:"حصة",note:null},
+   {it:"la",ar:"الـ",note:"جزء من la sera"},
+   {it:"sera",ar:"بالليل",note:null}
+ ], conj:null},
+
+{it:"Lei capiva tutto a lezione ma era stanca la sera", ar:"هي كانت بتفهم كل حاجة في الحصة، بس كانت تعبانة بالليل.", en:"She used to understand everything in class, but was tired in the evening.", pronoun:"Lei (هي)",
+ words:[
+   {it:"Lei",ar:"هي",note:null},
+   {it:"capiva",ar:"كانت بتفهم",note:"من Capire، Imperfetto مع Lei"},
+   {it:"tutto",ar:"كل حاجة",note:null},
+   {it:"a",ar:"في",note:null},
+   {it:"lezione",ar:"الحصة",note:null},
+   {it:"ma",ar:"بس / لكن",note:null},
+   {it:"era",ar:"كانت",note:"من Essere، Imperfetto مع Lei"},
+   {it:"stanca",ar:"تعبانة",note:"صفة مؤنث، اتفقت مع Lei"},
+   {it:"la",ar:"الـ",note:null},
+   {it:"sera",ar:"بالليل",note:null}
+ ], conj:{verb:"Essere",rows:[
+   {person:"Io (أنا)",form:"Ero"},{person:"Tu (أنت)",form:"Eri"},
+   {person:"Lui (هو)",form:"Era"},{person:"Lei (هي)",form:"Era"},
+   {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
+   {person:"Loro (هم)",form:"Erano"}]}},
+
+{it:"Lei prendeva un caffè piccolo ogni mattina", ar:"هي كانت باخد قهوة صغيرة كل صبح.", en:"She used to have a small coffee every morning.", pronoun:"Lei (هي)",
+ words:[
+   {it:"Lei",ar:"هي",note:null},
+   {it:"prendeva",ar:"كانت باخد",note:"من Prendere، Imperfetto مع Lei"},
+   {it:"un",ar:"(أداة تنكير)",note:null},
+   {it:"caffè",ar:"قهوة",note:null},
+   {it:"piccolo",ar:"صغير",note:"صفة، بتوصف caffè المذكر فبتاخد الصيغة المذكرة"},
+   {it:"ogni",ar:"كل",note:null},
+   {it:"mattina",ar:"صبح",note:null}
+ ], conj:null},
+
+{it:"Noi leggevamo i manga la sera quando eravamo stanchi", ar:"احنا كنا بنقرا المانجا بالليل لما كنا تعبانين.", en:"We used to read manga in the evening when we were tired.", pronoun:"Noi (احنا)",
+ words:[
+   {it:"Noi",ar:"احنا",note:"ضمير المتكلم الجمع"},
+   {it:"leggevamo",ar:"كنا بنقرا",note:"من Leggere، Imperfetto مع Noi"},
+   {it:"i",ar:"الـ",note:null},
+   {it:"manga",ar:"المانجا",note:null},
+   {it:"la",ar:"الـ",note:null},
+   {it:"sera",ar:"بالليل",note:null},
+   {it:"quando",ar:"لما",note:null},
+   {it:"eravamo",ar:"كنا",note:"من Essere (فعل شاذ)، Imperfetto مع Noi"},
+   {it:"stanchi",ar:"تعبانين",note:"صفة جمع مذكر"}
+ ], conj:{verb:"Essere",rows:[
+   {person:"Io (أنا)",form:"Ero"},{person:"Tu (أنت)",form:"Eri"},
+   {person:"Lui (هو)",form:"Era"},{person:"Lei (هي)",form:"Era"},
+   {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
+   {person:"Loro (هم)",form:"Erano"}]}},
+
+{it:"Noi tornavamo dalla lezione e prendevamo un caffè", ar:"احنا كنا برجع من الحصة وناخد قهوة.", en:"We used to come back from class and have a coffee.", pronoun:"Noi (احنا)",
+ words:[
+   {it:"Noi",ar:"احنا",note:null},
+   {it:"tornavamo",ar:"كنا برجع",note:"من Tornare، Imperfetto مع Noi"},
+   {it:"dalla",ar:"من الـ",note:null},
+   {it:"lezione",ar:"الحصة",note:null},
+   {it:"e",ar:"و",note:null},
+   {it:"prendevamo",ar:"كنا باخد",note:"من Prendere، Imperfetto مع Noi"},
+   {it:"un",ar:"(أداة تنكير)",note:null},
+   {it:"caffè",ar:"قهوة",note:null}
+ ], conj:null},
+
+{it:"Noi capivamo tutto a lezione ma di notte eravamo sempre stanchi", ar:"احنا كنا بنفهم كل حاجة في الحصة، بس بالليل كنا دايماً تعبانين.", en:"We used to understand everything in class, but at night we were always tired.", pronoun:"Noi (احنا)",
+ words:[
+   {it:"Noi",ar:"احنا",note:null},
+   {it:"capivamo",ar:"كنا بنفهم",note:"من Capire، Imperfetto مع Noi"},
+   {it:"tutto",ar:"كل حاجة",note:null},
+   {it:"a",ar:"في",note:null},
+   {it:"lezione",ar:"الحصة",note:null},
+   {it:"ma",ar:"بس",note:null},
+   {it:"di",ar:"بـ",note:"جزء من di notte"},
+   {it:"notte",ar:"الليل",note:null},
+   {it:"eravamo",ar:"كنا",note:"من Essere، Imperfetto مع Noi"},
+   {it:"sempre",ar:"دايماً",note:null},
+   {it:"stanchi",ar:"تعبانين",note:null}
+ ], conj:{verb:"Essere",rows:[
+   {person:"Io (أنا)",form:"Ero"},{person:"Tu (أنت)",form:"Eri"},
+   {person:"Lui (هو)",form:"Era"},{person:"Lei (هي)",form:"Era"},
+   {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
+   {person:"Loro (هم)",form:"Erano"}]}},
+
+{it:"Voi leggevate manga ogni sera prima di tornare a casa", ar:"كنتوا بتقروا مانجا كل ليلة قبل ما ترجعوا البيت؟", en:"Did you (pl) use to read manga every evening before going home?", pronoun:"Voi (انتم)",
+ words:[
+   {it:"Voi",ar:"انتم",note:"ضمير المخاطب الجمع"},
+   {it:"leggevate",ar:"كنتوا بتقروا",note:"من Leggere، Imperfetto مع Voi"},
+   {it:"manga",ar:"مانجا",note:null},
+   {it:"ogni",ar:"كل",note:null},
+   {it:"sera",ar:"ليلة",note:null},
+   {it:"prima",ar:"قبل",note:"جزء من حرف الجر المركب prima di"},
+   {it:"di",ar:"(حرف جر)",note:null},
+   {it:"tornare",ar:"ترجعوا",note:"مصدر بعد prima di (بدون تصريف)"},
+   {it:"a",ar:"لـ",note:null},
+   {it:"casa",ar:"البيت",note:null}
+ ], conj:null},
+
+{it:"Voi prendevate sempre un caffè piccolo alla mattina", ar:"كنتوا دايماً باخدين قهوة صغيرة في الصباح.", en:"You (pl) always used to have a small coffee in the morning.", pronoun:"Voi (انتم)",
+ words:[
+   {it:"Voi",ar:"انتم",note:null},
+   {it:"prendevate",ar:"كنتوا باخدين",note:"من Prendere، Imperfetto مع Voi"},
+   {it:"sempre",ar:"دايماً",note:null},
+   {it:"un",ar:"(أداة تنكير)",note:null},
+   {it:"caffè",ar:"قهوة",note:null},
+   {it:"piccolo",ar:"صغيرة",note:"صفة"},
+   {it:"alla",ar:"في الـ",note:"حرف جر مدمج"},
+   {it:"mattina",ar:"الصباح",note:null}
+ ], conj:null},
+
+{it:"Voi eravate stanchi quando il condizionatore non funzionava", ar:"كنتوا تعبانين لما المكيف ماكنش شغال.", en:"You (pl) were tired when the AC wasn't working.", pronoun:"Voi (انتم)",
+ words:[
+   {it:"Voi",ar:"انتم",note:null},
+   {it:"eravate",ar:"كنتوا",note:"من Essere (فعل شاذ)، Imperfetto مع Voi"},
+   {it:"stanchi",ar:"تعبانين",note:null},
+   {it:"quando",ar:"لما",note:null},
+   {it:"il",ar:"الـ",note:null},
+   {it:"condizionatore",ar:"المكيف",note:null},
+   {it:"non",ar:"مش",note:"جزء من النفي"},
+   {it:"funzionava",ar:"كان شغال",note:null}
+ ], conj:{verb:"Essere",rows:[
+   {person:"Io (أنا)",form:"Ero"},{person:"Tu (أنت)",form:"Eri"},
+   {person:"Lui (هو)",form:"Era"},{person:"Lei (هي)",form:"Era"},
+   {person:"Noi (احنا)",form:"Eravamo"},{person:"Voi (انتم)",form:"Eravate"},
+   {person:"Loro (هم)",form:"Erano"}]}},
+
+{it:"Loro leggevano i manga e capivano tutto da piccoli", ar:"هم كانوا بيقروا المانجا وبيفهموا كل حاجة من وهم صغيرين.", en:"They used to read manga and understand everything since they were little.", pronoun:"Loro (هم)",
+ words:[
+   {it:"Loro",ar:"هم",note:"ضمير الغائب الجمع"},
+   {it:"leggevano",ar:"كانوا بيقروا",note:"من Leggere، Imperfetto مع Loro"},
+   {it:"i",ar:"الـ",note:null},
+   {it:"manga",ar:"المانجا",note:null},
+   {it:"e",ar:"و",note:null},
+   {it:"capivano",ar:"كانوا بيفهموا",note:"من Capire، Imperfetto مع Loro"},
+   {it:"tutto",ar:"كل حاجة",note:null},
+   {it:"da",ar:"من",note:"حرف جر بسيط، جزء من da piccoli"},
+   {it:"piccoli",ar:"وهم صغيرين",note:"صفة جمع، تعبير زمني ثابت"}
+ ], conj:null},
+
+{it:"Loro tornavano a casa tardi la sera sempre stanchi", ar:"هم كانوا بيرجعوا البيت متأخرين بالليل، دايماً تعبانين.", en:"They used to come home late in the evening, always tired.", pronoun:"Loro (هم)",
+ words:[
+   {it:"Loro",ar:"هم",note:null},
+   {it:"tornavano",ar:"كانوا بيرجعوا",note:"من Tornare، Imperfetto مع Loro"},
+   {it:"a",ar:"لـ",note:null},
+   {it:"casa",ar:"البيت",note:null},
+   {it:"tardi",ar:"متأخرين",note:null},
+   {it:"la",ar:"الـ",note:null},
+   {it:"sera",ar:"بالليل",note:null},
+   {it:"sempre",ar:"دايماً",note:null},
+   {it:"stanchi",ar:"تعبانين",note:null}
+ ], conj:null},
+
+{it:"Loro prendevano un caffè ogni mattina prima della lezione", ar:"هم كانوا باخدين قهوة كل صبح قبل الحصة.", en:"They used to have a coffee every morning before class.", pronoun:"Loro (هم)",
+ words:[
+   {it:"Loro",ar:"هم",note:null},
+   {it:"prendevano",ar:"كانوا باخدين",note:"من Prendere، Imperfetto مع Loro"},
+   {it:"un",ar:"(أداة تنكير)",note:null},
+   {it:"caffè",ar:"قهوة",note:null},
+   {it:"ogni",ar:"كل",note:null},
+   {it:"mattina",ar:"صبح",note:null},
+   {it:"prima",ar:"قبل",note:null},
+   {it:"della",ar:"الـ",note:"di + la = della"},
+   {it:"lezione",ar:"الحصة",note:null}
+ ], conj:null}
+];
+
+let deck=[],idx=0,answered=false;
+let totalScore=0,passedCount=0,bestScore=0,totalAttempts=0,failCount=0;
+const PASS=80;
+
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+function norm(s){
+  return s.toLowerCase()
+    .replace(/[àá]/g,'a').replace(/[èéê]/g,'e')
+    .replace(/[ìí]/g,'i').replace(/[òó]/g,'o')
+    .replace(/[ùú]/g,'u').replace(/[^a-z\s]/g,'').trim();
+}
+
+// Levenshtein edit distance — used to approximate "how close" the heard
+// word is to the target word's spelling/sound, as a stand-in for real
+// phoneme-level accent scoring (which needs a server-side model).
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  if(m===0)return n;
+  if(n===0)return m;
+  const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for(let i=0;i<=m;i++)dp[i][0]=i;
+  for(let j=0;j<=n;j++)dp[0][j]=j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+    }
+  }
+  return dp[m][n];
+}
+function similarity(a,b){
+  const dist=levenshtein(a,b);
+  const maxLen=Math.max(a.length,b.length);
+  return maxLen===0?1:1-dist/maxLen;
+}
+
+// ===== UNIFIED MIC ENGINE =====
+// Primary: Whisper-tiny running fully in-browser via WebAssembly (transformers.js) —
+// free, no API key, works fully offline once the model is downloaded+cached once.
+// Fallback: native browser SpeechRecognition (needs internet, but instant/no
+// download) — used automatically while the offline model is still loading,
+// or if WASM/the model fails for any reason, so the app never gets fully stuck.
+let micBusy=false;
+let whisperPipeline=null, whisperReady=false, whisperLoading=false;
+
+function setEngineStatus(text){
+  const el=document.getElementById('engineStatus');
+  if(!el)return;
+  if(text){el.textContent=text;el.style.display='block';}
+  else{el.style.display='none';}
+}
+
+async function ensureWhisperLoaded(){
+  if(whisperReady||whisperLoading)return;
+  whisperLoading=true;
+  setEngineStatus('⏳ بيحمّل محرك النطق الأوفلاين أول مرة (~40-75 ميجا، مرة واحدة بس)...');
+  try{
+    const mod=await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+    mod.env.allowLocalModels=false;
+    whisperPipeline=await mod.pipeline('automatic-speech-recognition','Xenova/whisper-tiny',{
+      progress_callback:(p)=>{
+        if(p&&p.status==='progress'&&typeof p.progress==='number'){
+          setEngineStatus('⏳ بيحمّل المحرك الأوفلاين... '+Math.round(p.progress)+'%');
+        }
+      }
+    });
+    whisperReady=true;
+    setEngineStatus('✅ المحرك الأوفلاين جاهز — هيشتغل من غير نت دلوقتي');
+    setTimeout(()=>setEngineStatus(''),2500);
+  }catch(err){
+    setEngineStatus('⚠️ تعذّر تحميل المحرك الأوفلاين، هنستخدم تعرف الصوت اللي محتاج نت لحد ما يتاح');
+    setTimeout(()=>setEngineStatus(''),3500);
+  }
+  whisperLoading=false;
+}
+
+// Records mic audio with simple volume-based silence detection so the user
+// doesn't have to manually mark "done speaking".
+async function recordAudioVAD(maxMs,silenceMs){
+  maxMs=maxMs||6000;silenceMs=silenceMs||900;
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  const AC=window.AudioContext||window.webkitAudioContext;
+  const liveCtx=new AC();
+  const source=liveCtx.createMediaStreamSource(stream);
+  const analyser=liveCtx.createAnalyser();
+  analyser.fftSize=2048;
+  source.connect(analyser);
+
+  let mimeType='';
+  ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'].some(t=>{
+    if(window.MediaRecorder&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(t)){mimeType=t;return true;}
+    return false;
+  });
+  const recorder=mimeType?new MediaRecorder(stream,{mimeType}):new MediaRecorder(stream);
+  const chunks=[];
+  recorder.ondataavailable=(e)=>{if(e.data&&e.data.size>0)chunks.push(e.data);};
+
+  return new Promise((resolve,reject)=>{
+    let speechStarted=false,silenceStart=null;
+    const dataArr=new Uint8Array(analyser.frequencyBinCount);
+    const startTime=Date.now();
+    let stopped=false;
+
+    function finishUp(){
+      stream.getTracks().forEach(t=>t.stop());
+      try{liveCtx.close();}catch(e){}
+    }
+
+    function tick(){
+      if(stopped)return;
+      analyser.getByteTimeDomainData(dataArr);
+      let sum=0;
+      for(let i=0;i<dataArr.length;i++){const v=(dataArr[i]-128)/128;sum+=v*v;}
+      const rms=Math.sqrt(sum/dataArr.length);
+      const now=Date.now();
+      if(rms>0.02){speechStarted=true;silenceStart=null;}
+      else if(speechStarted){if(silenceStart===null)silenceStart=now;}
+      const timedOut=now-startTime>maxMs;
+      const wentQuiet=speechStarted&&silenceStart&&(now-silenceStart>silenceMs);
+      if(timedOut||wentQuiet){
+        stopped=true;
+        recorder.stop();
+        return;
+      }
+      requestAnimationFrame(tick);
+    }
+
+    recorder.onstop=async ()=>{
+      finishUp();
+      try{
+        const blob=new Blob(chunks,{type:mimeType||'audio/webm'});
+        const arrayBuf=await blob.arrayBuffer();
+        const decodeCtx=new AC();
+        const audioBuffer=await decodeCtx.decodeAudioData(arrayBuf);
+        const targetLen=Math.max(1,Math.ceil(audioBuffer.duration*16000));
+        const offline=new OfflineAudioContext(1,targetLen,16000);
+        const src=offline.createBufferSource();
+        src.buffer=audioBuffer;
+        src.connect(offline.destination);
+        src.start();
+        const rendered=await offline.startRendering();
+        resolve(rendered.getChannelData(0));
+      }catch(err){reject(err);}
+    };
+
+    recorder.start();
+    requestAnimationFrame(tick);
+  });
+}
+
+async function whisperTranscribe(float32Audio){
+  const out=await whisperPipeline(float32Audio,{language:'italian',task:'transcribe'});
+  return (out&&out.text?out.text:'').trim();
+}
+
+// Generic mic driver shared by word-mode, lesson sentence-mode, and drill
+// mode. Tries the offline Whisper engine first (if ready); otherwise falls
+// back to the native browser API (needs internet) so the mic always does
+// *something* useful.
+async function smartListen({micBtnId,micLblId,errEl,onResult,onError}){
+  if(micBusy)return;
+  const btn=document.getElementById(micBtnId);
+  const lbl=document.getElementById(micLblId);
+  micBusy=true;
+  btn.classList.add('on');
+  lbl.classList.add('on');
+  lbl.textContent='🔴 بيسمعك...';
+
+  if(!whisperReady&&!whisperLoading)ensureWhisperLoaded();
+
+  let finished=false;
+  let watchdog=null;
+  function finish(){
+    if(finished)return;
+    finished=true;
+    if(watchdog)clearTimeout(watchdog);
+    micBusy=false;
+    btn.classList.remove('on');
+    lbl.classList.remove('on');
+  }
+  // Safety net: whatever happens (a stalled WASM call, a recognition session
+  // that ends without firing onresult/onerror, etc.) the mic must never stay
+  // stuck forever — force a reset + error after 20s no matter what.
+  watchdog=setTimeout(()=>{
+    if(finished)return;
+    finish();
+    onError('timeout');
+  },20000);
+
+  if(whisperReady){
+    try{
+      const audio=await recordAudioVAD();
+      if(finished)return;
+      lbl.textContent='🧠 بيحلل النطق...';
+      const text=await whisperTranscribe(audio);
+      if(finished)return;
+      finish();
+      if(!text){onError('no-speech');return;}
+      onResult([text]);
+    }catch(err){
+      if(finished)return;
+      finish();
+      const msg=(err&&err.name==='NotAllowedError')?'not-allowed':(err.message||'mic-error');
+      onError(msg);
+    }
+    return;
+  }
+
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){finish();onError('no-engine');return;}
+  let recog;
+  try{
+    recog=new SR();
+  }catch(err){
+    finish();onError('mic-error');return;
+  }
+  recog.lang='it-IT';recog.interimResults=false;recog.maxAlternatives=6;
+  recog.onresult=(e)=>{
+    const alts=[...e.results[0]].map(r=>r.transcript.trim());
+    const conf=e.results[0][0].confidence;
+    finish();
+    onResult(alts,conf);
+  };
+  recog.onerror=(e)=>{
+    finish();
+    onError(e.error);
+  };
+  // Critical: without onend, a session that ends silently (no onresult, no
+  // onerror — seen on some Android Chrome builds) leaves micBusy stuck
+  // forever and every future tap silently does nothing.
+  recog.onend=()=>{
+    if(finished)return;
+    finish();
+    onError('no-speech');
+  };
+  try{
+    recog.start();
+  }catch(err){
+    finish();
+    onError('mic-error');
+  }
+}
+
+function micErrorMessage(err){
+  const m={
+    'not-allowed':'⛔ مفيش إذن ميكروفون',
+    'no-speech':'ما سمعتش حاجة، جرب تاني',
+    'network':'خطأ في الشبكة',
+    'no-engine':'⚠️ المتصفح ده مش بيدعم تعرف الصوت — جرب Chrome',
+    'timeout':'⌛ ماحصلش رد، جرب تاني'
+  };
+  return m[err]||'خطأ: '+err;
+}
+
+function start(){
+  deck=shuffle(WORDS);idx=0;answered=false;
+  totalScore=0;passedCount=0;bestScore=0;totalAttempts=0;failCount=0;
+  document.getElementById('endScreen').classList.remove('show');
+  document.getElementById('game').style.display='flex';
+  render();
+}
+function restart(){start();}
+
+function render(){
+  answered=false;
+  failCount=0;
+  const w=deck[idx];
+  document.getElementById('cat').textContent=w.cat;
+  document.getElementById('wIt').textContent=w.it;
+  document.getElementById('wAr').textContent=w.ar;
+  document.getElementById('wIpa').textContent=w.ipa;
+  document.getElementById('wPron').textContent=w.pron;
+  document.getElementById('wEx').textContent='';
+  document.getElementById('heard').textContent='';
+  document.getElementById('badge').className='badge';
+  document.getElementById('nextBtn').className='next-btn';
+  document.getElementById('skipBtn').style.display='none';
+  document.getElementById('card').className='card';
+  document.getElementById('micBtn').className='mic-btn';
+  document.getElementById('micBtn').disabled=false;
+  document.getElementById('micLbl').className='mic-lbl';
+  document.getElementById('micLbl').textContent='اضغط وتكلم';
+  document.getElementById('progFill').style.width=(idx/deck.length*100)+'%';
+  document.getElementById('sAvg').textContent=(passedCount?Math.round(totalScore/passedCount):0)+'%';
+  document.getElementById('sAll').textContent=totalAttempts;
+  document.getElementById('sBest').textContent=bestScore+'%';
+}
+
+function speak(){
+  const utt=new SpeechSynthesisUtterance(deck[idx].it);
+  utt.lang='it-IT';utt.rate=0.8;
+  speechSynthesis.cancel();speechSynthesis.speak(utt);
+}
+
+function toggleMic(){
+  if(answered||micBusy)return;
+  smartListen({
+    micBtnId:'micBtn',micLblId:'micLbl',
+    onResult:(alts,conf)=>{
+      document.getElementById('micLbl').textContent='اضغط وتكلم';
+      judge(alts,conf);
+    },
+    onError:(err)=>{
+      document.getElementById('micLbl').textContent='اضغط وتكلم';
+      document.getElementById('heard').textContent=micErrorMessage(err);
+    }
+  });
+}
+
+function judge(alts,conf){
+  if(answered)return;
+  answered=true;
+  totalAttempts++;
+  const w=deck[idx];
+  const target=norm(w.it);
+  const heard=alts[0];
+
+  // Approximate accuracy score: best text-similarity among the recognizer's
+  // alternatives, blended lightly with its confidence value. This is NOT a
+  // real phoneme-level accent analysis (that needs server-side ML) — it's a
+  // free, on-device proxy based on how close the transcribed word is to the
+  // target spelling.
+  let bestSim=0;
+  alts.forEach(a=>{
+    const sim=similarity(norm(a),target);
+    if(sim>bestSim)bestSim=sim;
+  });
+  const confVal=(typeof conf==='number'&&conf>0)?conf:0.85;
+  let score=Math.round((bestSim*0.85+confVal*0.15)*100);
+  score=Math.max(0,Math.min(100,score));
+  if(score>bestScore)bestScore=score;
+
+  document.getElementById('heard').textContent='🎧 سمعت: "'+heard+'"';
+  document.getElementById('wEx').textContent=w.ex;
+
+  const badge=document.getElementById('badge');
+  const card=document.getElementById('card');
+  const nb=document.getElementById('nextBtn');
+  const skipBtn=document.getElementById('skipBtn');
+
+  if(score>=PASS){
+    // Passed — word is done, move on is allowed.
+    totalScore+=score;passedCount++;
+    badge.innerHTML='🌟 <b>'+score+'%</b> — تمام! عديت الكلمة ✅';
+    badge.className='badge ok show';
+    card.className='card ok';
+    floatEmoji('🌟');
+    document.getElementById('micBtn').disabled=true;
+    skipBtn.style.display='none';
+    nb.className='next-btn show';
+    nb.textContent=idx+1>=deck.length?'النتيجة 🏆':'التالي ←';
+  } else {
+    // Below 80% — must retry this same word, mic stays active.
+    failCount++;
+    answered=false;
+    let cls,emoji,msg;
+    if(score>=55){cls='mid';emoji='💪';msg='قريب! حاول تاني عشان تعدي 80%';}
+    else{cls='bad';emoji='🔁';msg='بعيد عن النطق الصح — اسمع وحاول تاني';}
+    badge.innerHTML=emoji+' <b>'+score+'%</b> — '+msg;
+    badge.className='badge '+cls+' show';
+    card.className='card '+cls;
+    floatEmoji(emoji);
+    setTimeout(()=>speak(),450);
+    if(failCount>=3)skipBtn.style.display='inline-block';
+  }
+
+  document.getElementById('sAvg').textContent=(passedCount?Math.round(totalScore/passedCount):0)+'%';
+  document.getElementById('sAll').textContent=totalAttempts;
+  document.getElementById('sBest').textContent=bestScore+'%';
+}
+
+function skipWord(){
+  document.getElementById('skipBtn').style.display='none';
+  next();
+}
+
+function next(){
+  idx++;
+  if(idx>=deck.length){endGame();return;}
+  render();
+}
+
+function endGame(){
+  document.getElementById('game').style.display='none';
+  const avg=passedCount?Math.round(totalScore/passedCount):0;
+  const d=avg>=85?{e:'🏆',t:'محترف إيطالي!'}:avg>=65?{e:'🌟',t:'برافو عليك!'}:avg>=45?{e:'💪',t:'كويس، بس تقدر أحسن!'}:{e:'😅',t:'حاول تاني!'};
+  document.getElementById('endEmoji').textContent=d.e;
+  document.getElementById('endTitle').textContent=d.t;
+  document.getElementById('endSub').innerHTML=`متوسط دقة النطق: <b style="color:var(--gold)">${avg}%</b><br>أعلى سكور: <b style="color:var(--green)">${bestScore}%</b> &nbsp;|&nbsp; ${totalAttempts} محاولة لـ ${passedCount} كلمة`;
+  document.getElementById('endScreen').classList.add('show');
+}
+
+function floatEmoji(emoji){
+  const el=document.createElement('div');
+  el.className='floater';el.textContent=emoji;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),950);
+}
+
+// ===== INFINITE LESSON ENGINE =====
+function switchMode(mode){
+  const isWord=mode==='word';
+  document.getElementById('tabWord').classList.toggle('active',isWord);
+  document.getElementById('tabLesson').classList.toggle('active',!isWord);
+  document.getElementById('game').style.display=isWord?'flex':'none';
+  if(!isWord)document.getElementById('endScreen').classList.remove('show');
+  document.getElementById('lessonMode').style.display=isWord?'none':'flex';
+  if(!isWord && lDeck.length===0)lStart();
+}
+
+// ===== INFINITE LESSON ENGINE =====
+// Merges: (1) live per-word matching + isolated drill-on-failure from the
+// reference build, with (2) our deep grammar breakdown + conjugation tables
+// + tap-any-word-to-hear-it + always-available free navigation.
+let lDeck=[],lIdx=0;
+let lPassed=0,lStreak=0,lAttempts=0;
+
+// drill state — isolates and re-tests just the mispronounced word
+let drillMode=false;
+let drillTokenIdx=null;
+let drillFails=0;
+
+// whole-sentence mic state
+let tokenStates=[];           // 'pending'|'ok'|'bad'|'drill'|'skipped', one per word
+let sentenceAnswered=false;
+let sentenceFails=0;
+
+function lStart(){
+  lDeck=shuffle(LESSON_SENTENCES);lIdx=0;
+  lPassed=0;lStreak=0;lAttempts=0;
+  document.getElementById('lRestartBtn').style.display='none';
+  lRender();
+}
+function restartLesson(){lStart();}
+
+function lRender(){
+  drillMode=false;sentenceAnswered=false;sentenceFails=0;
+  const s=lDeck[lIdx];
+  tokenStates=s.words.map(()=>'pending');
+
+  document.getElementById('lPronoun').textContent=s.pronoun;
+  document.getElementById('lAr').textContent=s.ar;
+  document.getElementById('lEn').textContent=s.en;
+
+  // breakdown panel (deep grammar notes, tap any word to hear it)
+  const bd=document.getElementById('lBreakdown');
+  bd.innerHTML='';
+  s.words.forEach(w=>{
+    const row=document.createElement('div');
+    row.className='bd-row';
+    const wordSpan=document.createElement('span');
+    wordSpan.className='bd-word word-tap';
+    wordSpan.textContent=w.it;
+    wordSpan.onclick=()=>speakWord(w.it);
+    const noteSpan=document.createElement('span');
+    noteSpan.className='bd-note';
+    noteSpan.textContent=w.note?(w.ar+' — '+w.note):w.ar;
+    row.appendChild(wordSpan);
+    row.appendChild(noteSpan);
+    bd.appendChild(row);
+  });
+
+  const conjWrap=document.getElementById('lConjWrap');
+  if(s.conj){
+    conjWrap.style.display='block';
+    document.getElementById('lConjTitle').textContent='تصريف '+s.conj.verb+' في الـ Imperfetto (فعل شاذ)';
+    document.getElementById('lConjTbl').innerHTML=s.conj.rows.map(r=>'<tr><td>'+r.person+'</td><td>'+r.form+'</td></tr>').join('');
+  } else {
+    conjWrap.style.display='none';
+  }
+
+  document.getElementById('lHeard').textContent='';
+  document.getElementById('lBadge').className='badge';
+  document.getElementById('lNextBtn').className='next-btn';
+  document.getElementById('lSkipBtn').style.display='none';
+  document.getElementById('lCard').className='card';
+  document.getElementById('drillBox').classList.remove('show');
+  document.getElementById('lMicBtn').className='mic-btn';
+  document.getElementById('lMicBtn').disabled=false;
+  document.getElementById('lMicBtn').onclick=lToggleMic;
+  document.getElementById('lMicLbl').className='mic-lbl';
+  document.getElementById('lMicLbl').textContent='اضغط وقول الجملة كلها';
+  document.getElementById('lTtsBtn').style.display='inline-block';
+  document.getElementById('lProgFill').style.width=(lIdx/lDeck.length*100)+'%';
+  lUpdateScore();
+  lRenderTokens();
+}
+
+function lRenderTokens(){
+  const s=lDeck[lIdx];
+  const wrap=document.getElementById('lTokens');
+  wrap.innerHTML='';
+  s.words.forEach((w,i)=>{
+    const span=document.createElement('span');
+    span.className='token '+tokenStates[i];
+    span.textContent=w.it;
+    span.title=w.ar;
+    span.onclick=()=>speakWord(w.it);
+    wrap.appendChild(span);
+  });
+}
+
+function lUpdateScore(){
+  document.getElementById('lAvg').textContent=lAttempts?Math.round(lPassed/lAttempts*100)+'%':'0%';
+  document.getElementById('lAll').textContent=(lIdx+1)+'/'+lDeck.length;
+  document.getElementById('lStreak').textContent=lStreak;
+}
+
+function lSpeak(){speakWord(lDeck[lIdx].it);}
+
+function speakWord(text){
+  const clean=text.replace(/^[.,!?;:"'""'']+|[.,!?;:"'""'']+$/g,'').trim();
+  if(!clean)return;
+  speechSynthesis.cancel();
+  const utt=new SpeechSynthesisUtterance(clean);
+  utt.lang='it-IT';utt.rate=0.75;
+  speechSynthesis.speak(utt);
+}
+
+// ── Sentence-level mic (first pass at the whole sentence) ──
+function lToggleMic(){
+  if(sentenceAnswered||micBusy||drillMode)return;
+  smartListen({
+    micBtnId:'lMicBtn',micLblId:'lMicLbl',
+    onResult:(alts)=>{
+      document.getElementById('lMicLbl').textContent='اضغط وقول الجملة كلها';
+      lJudgeSentence(alts);
+    },
+    onError:(err)=>{
+      document.getElementById('lMicLbl').textContent='اضغط وقول الجملة كلها';
+      document.getElementById('lHeard').textContent=micErrorMessage(err);
+    }
+  });
+}
+
+// Tokenizes what was heard and best-fit matches it word-by-word against the
+// target sentence, marking each word ok/bad individually (instead of one
+// score for the whole sentence).
+function lJudgeSentence(alts){
+  lAttempts++;
+  sentenceFails++;
+  const s=lDeck[lIdx];
+  const heard=alts[0];
+  document.getElementById('lHeard').textContent='🎧 سمعت: "'+heard+'"';
+
+  const heardTokens=norm(heard).split(/\s+/).filter(Boolean);
+  const used=new Array(heardTokens.length).fill(false);
+  const matched=[];
+  s.words.forEach(w=>{
+    const target=norm(w.it);
+    let best=-1,bestScore=0;
+    heardTokens.forEach((ht,hi)=>{
+      if(used[hi])return;
+      const sc=similarity(norm(ht),target);
+      if(sc>bestScore){bestScore=sc;best=hi;}
+    });
+    matched.push({score:bestScore,heardIdx:best});
+    if(best>=0)used[best]=true;
+  });
+
+  const THRESH=0.72;
+  let allOk=true;
+  const badIdxs=[];
+  s.words.forEach((w,i)=>{
+    if(tokenStates[i]==='ok'||tokenStates[i]==='skipped')return;
+    if(matched[i].score>=THRESH){tokenStates[i]='ok';}
+    else{tokenStates[i]='bad';badIdxs.push(i);allOk=false;}
+  });
+  lRenderTokens();
+
+  if(allOk){
+    lPassed++;lStreak++;
+    sentenceAnswered=true;
+    document.getElementById('lBadge').innerHTML='🌟 ممتاز! الجملة صح كلها ✅';
+    document.getElementById('lBadge').className='badge ok show';
+    document.getElementById('lCard').className='card ok';
+    floatEmoji('🌟');
+    document.getElementById('lMicBtn').disabled=true;
+    document.getElementById('lSkipBtn').style.display='none';
+    document.getElementById('lNextBtn').className='next-btn show';
+    document.getElementById('lNextBtn').textContent=lIdx+1>=lDeck.length?'خلصت الدفعة 🏆':'الجملة الجاية ←';
+  } else {
+    lStreak=0;
+    document.getElementById('lBadge').innerHTML='⚠️ في كلمات غلط — هنتدرب عليهم';
+    document.getElementById('lBadge').className='badge mid show';
+    if(sentenceFails>=3)document.getElementById('lSkipBtn').style.display='inline-block';
+    startDrill(badIdxs[0]);
+  }
+  lUpdateScore();
+}
+
+// ── Drill mode: isolate one mispronounced word and retest just that word ──
+function startDrill(tokenIdx){
+  drillMode=true;
+  drillTokenIdx=tokenIdx;
+  drillFails=0;
+  const s=lDeck[lIdx];
+  const w=s.words[tokenIdx];
+  tokenStates[tokenIdx]='drill';
+  lRenderTokens();
+
+  document.getElementById('drillWord').textContent=w.it;
+  document.getElementById('drillAr').textContent=w.ar;
+  document.getElementById('drillNote').textContent=w.note||'';
+  document.getElementById('drillAttempts').textContent='قول الكلمة دي لوحدها';
+  document.getElementById('drillBox').classList.add('show');
+  document.getElementById('lTtsBtn').style.display='none';
+
+  document.getElementById('lMicBtn').className='mic-btn';
+  document.getElementById('lMicBtn').disabled=false;
+  document.getElementById('lMicBtn').onclick=drillToggleMic;
+  document.getElementById('lMicLbl').textContent='اضغط وقول الكلمة';
+
+  setTimeout(()=>speakWord(w.it),300);
+}
+
+function drillToggleMic(){
+  if(micBusy)return;
+  smartListen({
+    micBtnId:'lMicBtn',micLblId:'lMicLbl',
+    onResult:(alts)=>{
+      document.getElementById('lMicLbl').textContent='اضغط وقول الكلمة';
+      drillJudge(alts);
+    },
+    onError:(err)=>{
+      document.getElementById('lMicLbl').textContent='اضغط وقول الكلمة';
+      document.getElementById('lHeard').textContent=micErrorMessage(err);
+    }
+  });
+}
+
+function drillJudge(alts){
+  const s=lDeck[lIdx];
+  const w=s.words[drillTokenIdx];
+  const target=norm(w.it);
+  let bestSim=0;
+  alts.forEach(a=>{const sc=similarity(norm(a),target);if(sc>bestSim)bestSim=sc;});
+  const heard=alts[0];
+  document.getElementById('lHeard').textContent='🎧 سمعت: "'+heard+'"';
+
+  if(bestSim>=0.72){
+    tokenStates[drillTokenIdx]='ok';
+    lRenderTokens();
+    floatEmoji('✅');
+    document.getElementById('drillAttempts').textContent='✅ كويس!';
+
+    setTimeout(()=>{
+      document.getElementById('lTtsBtn').style.display='inline-block';
+      document.getElementById('lMicBtn').onclick=lToggleMic;
+      document.getElementById('lMicLbl').textContent='اضغط وقول الجملة كلها';
+      document.getElementById('drillBox').classList.remove('show');
+      drillMode=false;
+
+      const nextBad=tokenStates.findIndex(st=>st==='bad');
+      if(nextBad>=0){
+        startDrill(nextBad);
+      } else {
+        sentenceAnswered=true;
+        lPassed++;lStreak++;
+        document.getElementById('lBadge').innerHTML='🌟 ممتاز! عديت الجملة كلها ✅';
+        document.getElementById('lBadge').className='badge ok show';
+        document.getElementById('lCard').className='card ok';
+        document.getElementById('lMicBtn').disabled=true;
+        document.getElementById('lSkipBtn').style.display='none';
+        document.getElementById('lNextBtn').className='next-btn show';
+        document.getElementById('lNextBtn').textContent=lIdx+1>=lDeck.length?'خلصت الدفعة 🏆':'الجملة الجاية ←';
+        floatEmoji('🏆');
+        lUpdateScore();
+      }
+    },700);
+  } else {
+    drillFails++;
+    floatEmoji('🔁');
+    document.getElementById('drillAttempts').textContent=drillFails>=3?'خد وقتك — اسمع وكرر':'حاولة '+(drillFails+1)+' — حاول تاني';
+    setTimeout(()=>speakWord(w.it),300);
+  }
+}
+
+function lSkipSentence(){
+  tokenStates=tokenStates.map(st=>st==='ok'?'ok':'skipped');
+  lRenderTokens();
+  if(drillMode){
+    drillMode=false;
+    document.getElementById('drillBox').classList.remove('show');
+    document.getElementById('lMicBtn').onclick=lToggleMic;
+    document.getElementById('lTtsBtn').style.display='inline-block';
+  }
+  lStreak=0;
+  sentenceAnswered=true;
+  document.getElementById('lMicBtn').disabled=true;
+  document.getElementById('lSkipBtn').style.display='none';
+  document.getElementById('lNextBtn').className='next-btn show';
+  document.getElementById('lNextBtn').textContent=lIdx+1>=lDeck.length?'خلصت الدفعة 🏆':'الجملة الجاية ←';
+}
+
+function lNext(){
+  lIdx++;
+  if(lIdx>=lDeck.length){lEnd();return;}
+  lRender();
+}
+
+function lEnd(){
+  document.getElementById('lMicBtn').disabled=true;
+  document.getElementById('lNextBtn').className='next-btn';
+  document.getElementById('lSkipBtn').style.display='none';
+  const pct=lAttempts?Math.round(lPassed/lAttempts*100):0;
+  document.getElementById('lBadge').innerHTML='🏆 خلصت كل الـ '+lDeck.length+' جملة! نسبة النجاح: <b>'+pct+'%</b>';
+  document.getElementById('lBadge').className='badge ok show';
+  document.getElementById('lRestartBtn').style.display='inline-block';
+  floatEmoji('🏆');
+}
+
+start();
+// Start loading the offline speech engine in the background right away, so
+// it's hopefully ready by the time the user presses the mic. If it's not
+// ready yet, the mic falls back to the online engine automatically.
+ensureWhisperLoaded();
+</script>
+</body>
+</html>
